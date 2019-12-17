@@ -1,0 +1,47 @@
+.statusBar {
+    -fx-background-color: #efefef;
+    -fx-padding: 10px 50px;
+    -fx-border-color: black;
+    -fx-border-style: solid;
+    -fx-border-width: 2px 0 0 0;  
+	-fx-font-size: 25px;
+	/*-fx-font-family: "Candara";*/
+}
+
+
+.title { 
+	-fx-font-size: 35px;
+	-fx-font-weight: bold;
+}
+
+.pause { 
+	-fx-font-size: 60px;
+	-fx-font-weight: bold;
+}
+
+.subtitle { 
+	-fx-font-size: 15px;
+}
+
+.normal { 
+	-fx-font-size: 20px;
+}
+
+.addButton {
+	-fx-font-size: 15px;
+}
+
+.popup {
+	-fx-background-color: GhostWhite;
+	-fx-border-color: Grey;
+	-fx-border-style: solid;
+	-fx-border-width: 2px;
+}
+
+.message {
+	-fx-alignment: center;
+	-fx-font-weight: bold;
+	-fx-font-size: 64px;	
+	-fx-fill: red;
+	-fx-stroke: black;
+}
