@@ -12,7 +12,7 @@ public class Duke {
 		this.name = name;
 		this.color = color;
 		this.isPlayer = isPlayer;
-		this.isNeutral =  name == "";
+		this.isNeutral = name == "";
 	}
 	
 	public Duke(String name, Color color) {

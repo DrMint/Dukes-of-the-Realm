@@ -1,8 +1,5 @@
 package myGame;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import troop.Troop;
 
 public class Production {

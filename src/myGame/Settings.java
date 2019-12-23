@@ -1,14 +1,14 @@
 package myGame;
 
-import troop.*;
+import troop.Knight;
+import troop.Spearman;
+import troop.Troop;
 
 public class Settings {
 
 	public static final int SCENE_WIDTH = 1800;
     public static final int SCENE_HEIGHT = 900;
 	public static final int STATUS_BAR_HEIGHT = 150;
-	
-	/*New config*/
 	
 	public static final int POPUP_WIDTH = 400;
     public static final int POPUP_HEIGHT = 700;
@@ -33,22 +33,5 @@ public class Settings {
 	public static final int NUM_PRODUCTION_SHOWN = 5; // The number of items listed in the production menu
 	
 	public static final int NUM_OSTS_SHOWN = 7; // The number of osts listed in the popup menu
-	
-	/*End new config*/
-
-
-    public static final double PLAYER_SPEED = 4.0;
-    public static final int    PLAYER_HEALTH = 3;
-    public static final double PLAYER_DAMAGE = 1;
-
-    public static final double MISSILE_SPEED = 4.0;
-    public static final int    MISSILE_HEALTH = 0;
-    public static final double MISSILE_DAMAGE = 1.0;
-
-    public static final int ENEMY_SPAWN_RANDOMNESS = 100;
-    
-    public static final int FIRE_FREQUENCY_LOW = 1000 * 1000 * 1000; // 1 second in nanoseconds
-    public static final int FIRE_FREQUENCY_MEDIUM = 500 * 1000 * 1000; // 0.5 second in nanoseconds
-    public static final int FIRE_FREQUENCY_HIGH = 100 * 1000 * 1000; // 0.1 second in nanoseconds
 
 }

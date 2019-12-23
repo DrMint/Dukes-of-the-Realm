@@ -1,11 +1,16 @@
 package myGame;
 
+import static javafx.scene.input.KeyCode.DOWN;
+import static javafx.scene.input.KeyCode.ESCAPE;
+import static javafx.scene.input.KeyCode.LEFT;
+import static javafx.scene.input.KeyCode.RIGHT;
+import static javafx.scene.input.KeyCode.SPACE;
+import static javafx.scene.input.KeyCode.UP;
+
 import java.util.BitSet;
 
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import static javafx.scene.input.KeyCode.*;
-
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 

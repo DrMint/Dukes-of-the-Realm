@@ -69,6 +69,11 @@ public class Order {
 		this.troops = troops;
 	}
 	
+	public void refresh() {
+		for (Troop troop : this.troops) {
+			troop.refresh();
+		}
+	}
 	
 	
 	

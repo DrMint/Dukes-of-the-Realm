@@ -3,12 +3,20 @@ package myGame;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import troop.Troop;
 
-import troop.*;
-
+/**
+ * A castle is an object in the game Duke of the Realm
+ * It has a owner, some properties such as its treasury, level, position...
+ * 
+ * @author Thomas Barillot and Maël Bouquinet
+ * @version 1.0
+ * @since   2019-12-23
+ */
 public class Castle {
 	
 	private String nickname;
@@ -20,14 +28,9 @@ public class Castle {
 	private Pane layer;
 	private List<Order> orders = new ArrayList<>();
 	private List<Production> productions = new ArrayList<>();
+	private Direction doorDirection;
 	
-	/*0 = North
-	 *1 = East
-	 *2 = South
-	 *3 = West*/
-	private int doorDirection;
-	
-	public Castle(String nickname, Duke owner, int money, int level, List<Troop> troops, Point location, Pane layer, int doorDirection) {
+	public Castle(String nickname, Duke owner, int money, int level, List<Troop> troops, Point location, Pane layer, Direction doorDirection) {
 		this.nickname = nickname;
 		this.owner = owner;
 		this.money = money;
@@ -79,7 +82,12 @@ public class Castle {
 	
 	public void tick() {
 		
-		this.money += this.level * 10;
+		// Add money each tick. If the duke is neutral, it's 10% of the normal income.
+		if (this.owner.isNeutral()) {
+			this.money += this.level;
+		} else {
+			this.money += this.level * 10;
+		}
 		
 		Iterator<Production> i = productions.iterator();
 		while (i.hasNext()) {
@@ -102,10 +110,6 @@ public class Castle {
 		}
 		
 	}
-        
-    public void removeFromLayer() {
-        this.layer.getChildren().remove(layer);
-    }
 
 	public Point getLocation() {
 		return location;
@@ -174,20 +178,11 @@ public class Castle {
 
 	public void addOrder(Castle target, List<Troop> troops) {
 		
-		int sizeCastle = Settings.CASTLES_SIZE;
-		
-		/*0 = North
-		 *1 = East
-		 *2 = South
-		 *3 = West*/
 		for (Troop troop:troops) {
-			switch (this.doorDirection) {
-				case 0: ; troop.setLocation(this.location.add(sizeCastle / 2, -1)); break;
-				case 1: ; troop.setLocation(this.location.add(sizeCastle + 1, sizeCastle / 2)); break;
-				case 2: ; troop.setLocation(this.location.add(sizeCastle / 2, sizeCastle + 1)); break;
-				case 3: ; troop.setLocation(this.location.add(-1, sizeCastle / 2)); break;
-			}
-			Rectangle shape = new Rectangle(20, 20);
+			troop.setLocation(this.location.add(this.doorDirection.toPoint().scalar(Settings.CASTLES_SIZE)));
+			Rectangle shape = new Rectangle(Main.gridSize, Main.gridSize);
+			shape.setX(-100);
+			shape.setY(-100);
 			shape.setFill(this.owner.getColor());
 			this.layer.getChildren().add(shape);
 			troop.setShape(shape);
@@ -205,8 +200,37 @@ public class Castle {
 		this.troops.removeAll(troops);
 	}
 
-	public int getDoorDirection() {
+	public Direction getDoorDirection() {
 		return doorDirection;
 	}
+	
+	public void addToLayer() {
+		Point pos = new Point(Main.gridStart.x + this.location.x * Main.gridSize, Main.gridStart.y + this.location.y * Main.gridSize);
+    	Rectangle shape = new Rectangle(pos.x, pos.y, Main.gridSize * Settings.CASTLES_SIZE, Main.gridSize * Settings.CASTLES_SIZE);
+    	shape.setFill(this.owner.getColor());
+    	this.layer.getChildren().add(shape);
+        
+        int width;
+        int height;
+        
+    	if (this.doorDirection.isNorth() || this.doorDirection.isSouth()) {
+    		width = (int) (Main.gridSize * Settings.CASTLES_SIZE * 0.5);
+        	height = (int) (Main.gridSize * Settings.CASTLES_SIZE * 0.25);
+    	} else {
+    		width = (int) (Main.gridSize * Settings.CASTLES_SIZE * 0.25);
+        	height = (int) (Main.gridSize * Settings.CASTLES_SIZE * 0.5);
+    	}
+        
+		// Place x and y at the center of the castle
+    	pos.translate(Settings.CASTLES_SIZE * Main.gridSize / 2,  Settings.CASTLES_SIZE * Main.gridSize / 2);
+    	// Move the door in its appropriate direction
+    	pos.translate(this.doorDirection.toPoint().scalar(Main.gridSize * Settings.CASTLES_SIZE * 0.4f));
+    	// Get the top left corner coordinates from the center point
+    	pos.translate(- width / 2, - height / 2);   	
+
+        Rectangle door = new Rectangle(pos.x, pos.y, width, height);
+        door.setFill(Color.WHITE);
+        this.layer.getChildren().add(door);
+    }
 	
 }

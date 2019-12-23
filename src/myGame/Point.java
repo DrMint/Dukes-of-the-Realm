@@ -28,6 +28,24 @@ public class Point {
 		return new Point(this.x + x, this.y + y);
 	}
 	
+	public void translate(Point p) {
+		this.x += p.x;
+		this.y += p.y;
+	}
+	
+	public void translate(int x, int y) {
+		this.x += x;
+		this.y += y;
+	}
+	
+	public Point scalar(int i) {
+		return new Point(this.x * i, this.y * i);
+	}
+	
+	public Point scalar(float i) {
+		return new Point((int) (i * this.x), (int) (i * this.y));
+	}
+	
 	@Override
 	public String toString() {
 		return "Point [x=" + x + ", y=" + y + "]";
