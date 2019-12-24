@@ -1,14 +1,12 @@
 package popup;
 
-import java.util.List;
-
-import javafx.animation.AnimationTimer;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Text;
 import myGame.Castle;
+import myGame.Main;
 import myGame.Order;
 import myGame.Point;
 import myGame.Settings;
@@ -22,24 +20,15 @@ public class PopupAttack extends Popup{
 	private Text textOstsSpear[] = new Text[Settings.NUM_OSTS_SHOWN];
 	private Text textOstsKnight[] = new Text[Settings.NUM_OSTS_SHOWN];
 	private Text textOstsCatapult[] = new Text[Settings.NUM_OSTS_SHOWN];
-	private Button buttonAddOrder = new Button("Envoyer un ost");
 	
-	private Castle selectedCastle;
 	private boolean waitingToSelectCastle;
-	private Castle targetSelectedCastle;
 	
 	
 	public PopupTroop popupTroop;
 	
 	public PopupAttack(Group root) {
 		super(root);
-		createPopup();
 		hide();
-		this.popupTroop = new PopupTroop(root);
-	}
-
-	@Override
-	public void createPopup() {
 		
 		for(int i = 0; i < textOstsCastleName.length; i++) {textOstsCastleName[i] = new Text();}
 		for(int i = 0; i < textOstsSpear.length; i++) {textOstsSpear[i] = new Text();}
@@ -47,7 +36,6 @@ public class PopupAttack extends Popup{
 		for(int i = 0; i < textOstsCatapult.length; i++) {textOstsCatapult[i] = new Text();}
 		
 		layer.getChildren().add(pane);
-		//popupListOst.setVisible(false);
 		
 		/* Appearance Size and position of Popup */
 		pane.getStyleClass().add("popup");
@@ -72,78 +60,56 @@ public class PopupAttack extends Popup{
 			pane.add(textOstsCatapult[i], 2, 1 + i * 2 + 1);
 		}
 		
+		Button buttonAddOrder = new Button("Envoyer un ost");
 		pane.add(buttonAddOrder, 0, Settings.NUM_OSTS_SHOWN + 1, 3, 1);
-				
-	}
-
-	@Override
-	public void shareValues(Castle selectedCastle, Point gridStart, int gridSize, List<Castle> castles) {
-		this.selectedCastle = selectedCastle;
-		
-		layer.setOnMousePressed(e -> {
-			
-			if (waitingToSelectCastle) {
-				// Click coordinates to Grid coordinates
-				Point GridClick = new Point();
-				GridClick.x = (int) (e.getX() - gridStart.x) / gridSize;
-				GridClick.y = (int) (e.getY() - gridStart.y) / gridSize;
-				
-				for (Castle castle: castles) {
-					if (castle.getLocation().equals(GridClick)) {
-						if (castle != selectedCastle) {							
-							targetSelectedCastle = castle;
-						}
-					}
-				}
-			}
-		
-		});
-		
 		buttonAddOrder.setOnAction(value ->  {
-			targetSelectedCastle = null;
 			waitingToSelectCastle = true;
 			pane.setVisible(false);
-        });
+        });		
+
+		this.popupTroop = new PopupTroop(root);
 		
+		layer.setOnMousePressed(e -> {	
+			if (waitingToSelectCastle) {
+				Point p = new Point((int) e.getX(), (int) e.getY());
+				p = Main.pixelToGridCoordinates(p);
+				
+				Castle targetSelectedCastle = Main.getCastleFromPoint(p);
+				if (targetSelectedCastle != null && targetSelectedCastle != Main.selectedCastle) {
+					waitingToSelectCastle = false;
+					popupTroop.setTargetSelectedCastle(targetSelectedCastle);
+					popupTroop.refresh();
+					popupTroop.show();
+					pane.setVisible(true);
+				}
+			}
+		});
 	}
 	
 	@Override
-	public void refreshPopup() {		
+	public void refresh() {
+		this.needRefresh = false;
+		this.popupTroop.needRefresh = false;
 		Order tmp;
 		for (int i = 0; i < Settings.NUM_OSTS_SHOWN; i++) {
-			tmp = selectedCastle.getOrder(i);
+			tmp = Main.selectedCastle.getOrder(i);
 			if (tmp != null) {
 				textOstsCastleName[i].setFill(tmp.getTarget().getOwner().getColor());
 				textOstsCastleName[i].setText(tmp.getTarget().getNickname());
 				textOstsSpear[i].setText("S : " + tmp.getTroops(new Spearman()).size());
 				textOstsKnight[i].setText("K : " + tmp.getTroops(new Knight()).size());
 				textOstsCatapult[i].setText("C : " + tmp.getTroops(new Catapult()).size());
+			} else {
+				textOstsCastleName[i].setText("");
+				textOstsSpear[i].setText("");
+				textOstsKnight[i].setText("");
+				textOstsCatapult[i].setText("");
 			}
 		}
 		
 	}
-	
-	@Override
-	public void main() {
-		
-		
-		gameLoop = new AnimationTimer() {
-			@Override
-			public void handle(long now) {
-				refreshPopup();
-				if (waitingToSelectCastle) {
-					if (targetSelectedCastle != null) {
-						waitingToSelectCastle = false;
-						popupTroop.show();
-						popupTroop.shareValues(selectedCastle, targetSelectedCastle);
-						popupTroop.refreshPopup();
-						pane.setVisible(true);
-					}
-				}
-			}
-		};
-		gameLoop.start();
-	}
-	
 
+	public PopupTroop getPopupTroop() {
+		return popupTroop;
+	}
 }

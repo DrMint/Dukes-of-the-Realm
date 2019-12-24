@@ -1,61 +1,46 @@
 package popup;
 
-import java.util.List;
-
-import javafx.animation.AnimationTimer;
 import javafx.scene.Group;
 import javafx.scene.layout.GridPane;
-import myGame.Castle;
-import myGame.Point;
 
 public abstract class Popup {
 
 	Group layer;
 	GridPane pane = new GridPane();
 	private boolean isVisible = false;
-	AnimationTimer gameLoop;
+	boolean needRefresh = false;
 
 	public Popup(Group root) {
 		this.layer = root;
-		main();
 	}
 	
+	/**
+	 * Makes the pop-up appear.
+	 */
 	public void hide() {
 		isVisible = false;
 		pane.setVisible(isVisible);
-		gameLoop.stop();
 	}
 	
+	/**
+	 * Makes the pop-up disappear.
+	 */
 	public void show() {
 		isVisible = true;
 		pane.setVisible(isVisible);
-		main();
 	}
 	
-	public abstract void createPopup();
-	public abstract void refreshPopup();
+	/**
+	 * Refresh all the necessary the information
+	 */
+	public abstract void refresh();
 	
 	public boolean isVisible() {
 		return isVisible;
 	}
-	
-	public void main() {
-		
-		
-		gameLoop = new AnimationTimer() {
-			@Override
-			public void handle(long now) {
-				refreshPopup();
-			}
-		};
-		gameLoop.start();
-	}
 
-	public void shareValues(Castle selectedCastle, Point gridStart, int gridSize, List<Castle> castles) {
-		// TODO Auto-generated method stub
-		
+	public boolean needRefresh() {
+		return needRefresh;
 	}
-	
-
 	
 }

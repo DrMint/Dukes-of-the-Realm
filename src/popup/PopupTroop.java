@@ -2,13 +2,13 @@ package popup;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Text;
 import myGame.Castle;
+import myGame.Main;
 import myGame.Settings;
 import troop.Catapult;
 import troop.Knight;
@@ -37,17 +37,11 @@ public class PopupTroop extends Popup{
 	private int CatapultUsed = 0;
 	private int TotalUsed = 0;
 	
-	private Castle selectedCastle;
 	private Castle targetSelectedCastle;
 	
 	public PopupTroop(Group root) {
 		super(root);
-		createPopup();
-		hide();
-	}
-
-	@Override
-	public void createPopup() {
+		hide();		
 		
 		layer.getChildren().add(pane);
 		pane.toFront();
@@ -74,22 +68,13 @@ public class PopupTroop extends Popup{
 		pane.add(textTotalAvailable, 0, 4);
 		
 		Button buttonAddSpear = new Button("+");
-		buttonAddSpear.setOnAction(value ->  {
-			addSpear();
-			refreshPopup();
-        });
+		buttonAddSpear.setOnAction(value ->  {addSpear();});
 		
 		Button buttonAddKnight = new Button("+");
-		buttonAddKnight.setOnAction(value ->  {
-			addKnight();
-			refreshPopup();
-        });
+		buttonAddKnight.setOnAction(value ->  {addKnight();});
 		
 		Button buttonCatapult = new Button("+");
-		buttonCatapult.setOnAction(value ->  {
-			addCatapult();
-			refreshPopup();
-        });
+		buttonCatapult.setOnAction(value ->  {addCatapult();});
 		
 		pane.add(buttonAddSpear, 1, 1);
 		pane.add(buttonAddKnight, 1, 2);
@@ -104,54 +89,56 @@ public class PopupTroop extends Popup{
 		confirmButton.setOnAction(value ->  {
 			if (TotalUsed != 0) {
 				List<Troop> troops = new ArrayList<>();
-				for (int i = 0; i < SpearUsed; i++) {troops.add(selectedCastle.getTroops(new Spearman()).get(i));}
-				for (int i = 0; i < KnightUsed; i++) {troops.add(selectedCastle.getTroops(new Knight()).get(i));}
-				for (int i = 0; i < CatapultUsed; i++) {troops.add(selectedCastle.getTroops(new Catapult()).get(i));}
+				for (int i = 0; i < SpearUsed; i++) {troops.add(Main.selectedCastle.getTroops(new Spearman()).get(i));}
+				for (int i = 0; i < KnightUsed; i++) {troops.add(Main.selectedCastle.getTroops(new Knight()).get(i));}
+				for (int i = 0; i < CatapultUsed; i++) {troops.add(Main.selectedCastle.getTroops(new Catapult()).get(i));}
 				
-				this.selectedCastle.addOrder(this.targetSelectedCastle, troops);
+				Main.selectedCastle.addOrder(this.targetSelectedCastle, troops);
 			}
 			hide();
+			this.needRefresh = true;
         });
 		
 		pane.add(confirmButton, 0, 5, 3, 1);
-		
 	}
 
 	public void addSpear() {
 		if (SpearUsed < SpearAvailable) {
 			SpearUsed++;
+			refreshValues();
 		}
 	}
 	
 	public void addKnight() {
 		if (KnightUsed < KnightAvailable) {
 			KnightUsed++;
-			refreshPopup();
+			refreshValues();
 		}
 	}
 	
 	public void addCatapult() {
 		if (CatapultUsed < CatapultAvailable) {
 			CatapultUsed++;
-			refreshPopup();
+			refreshValues();
 		}
-	}
-
-	public void shareValues(Castle selectedCastle, Castle targetSelectedCastle) {
-		this.selectedCastle = selectedCastle;
-		this.targetSelectedCastle = targetSelectedCastle;
-		SpearAvailable = selectedCastle.getTroops(new Spearman()).size();
-		KnightAvailable = selectedCastle.getTroops(new Knight()).size();
-		CatapultAvailable = selectedCastle.getTroops(new Catapult()).size();
-		TotalAvailable = SpearAvailable + KnightAvailable + CatapultAvailable;
-		SpearUsed = 0;
-		KnightUsed = 0;
-		CatapultUsed = 0;
-		TotalUsed = 0;
 	}
 	
 	@Override
-	public void refreshPopup() {
+	public void refresh() {
+		this.needRefresh = false;
+		SpearAvailable = Main.selectedCastle.getTroops(new Spearman()).size();
+		KnightAvailable = Main.selectedCastle.getTroops(new Knight()).size();
+		CatapultAvailable = Main.selectedCastle.getTroops(new Catapult()).size();
+		TotalAvailable = SpearAvailable + KnightAvailable + CatapultAvailable;
+		
+		SpearUsed = 0;
+		KnightUsed = 0;
+		CatapultUsed = 0;
+		
+		refreshValues();
+	}
+	
+	public void refreshValues() {
 		TotalUsed = SpearUsed + KnightUsed + CatapultUsed;
 		
 		textSpearAvailable.setText("Spearman : " + (SpearAvailable - SpearUsed));
@@ -163,5 +150,9 @@ public class PopupTroop extends Popup{
 		textKnightUsed.setText(Integer.toString(KnightUsed));
 		textCatapultUsed.setText(Integer.toString(CatapultUsed));
 		textTotalUsed.setText(Integer.toString(TotalUsed));
+	}
+
+	public void setTargetSelectedCastle(Castle targetSelectedCastle) {
+		this.targetSelectedCastle = targetSelectedCastle;
 	}
 }

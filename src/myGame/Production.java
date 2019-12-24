@@ -11,8 +11,6 @@ public class Production {
 	private boolean isCastle;
 	private boolean isFinish;
 
-
-	
 	public Production(Troop troop) {
 		this.isCastle = false;
 		this.totalTime = troop.getTimeProduction();

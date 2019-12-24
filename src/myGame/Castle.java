@@ -1,6 +1,7 @@
 package myGame;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,11 +25,15 @@ public class Castle {
 	private int money;
 	private int level;
 	private List<Troop> troops = new ArrayList<>();
+	private List<Troop> troopsToDispatch = new ArrayList<>();
 	private Point location;
 	private Pane layer;
 	private List<Order> orders = new ArrayList<>();
 	private List<Production> productions = new ArrayList<>();
 	private Direction doorDirection;
+	private int numProductionUnit = 1;
+	private int numDispatchMax = 3;
+	private Rectangle shape = new Rectangle();
 	
 	public Castle(String nickname, Duke owner, int money, int level, List<Troop> troops, Point location, Pane layer, Direction doorDirection) {
 		this.nickname = nickname;
@@ -41,6 +46,9 @@ public class Castle {
 		this.doorDirection = doorDirection;
 	}
 		
+	/**
+	 * @return the cost to level up the castle
+	 */
 	public int costToLevel() {
 		int realLevel = this.level;
 		for (Production production:productions) {
@@ -49,6 +57,10 @@ public class Castle {
 		return 1000 * realLevel;
 	}
 	
+	
+	/**
+	 * @return the number of ticks to level up
+	 */
 	public int timeToLevel() {
 		int realLevel = this.level;
 		for (Production production:productions) {
@@ -57,6 +69,10 @@ public class Castle {
 		return 100 + 50 * realLevel;
 	}
 	
+	
+	/**
+	 * 
+	 */
 	public void levelUp() {
 		/*If it's too long, just used very small levels*/
 		int cost = costToLevel();
@@ -69,17 +85,11 @@ public class Castle {
 	
 	}
 	
-	public void addTroop(Troop troop) {
-		troops.add(troop);
-	}
-	
-	public void addProduction(Troop troop) {
-		if (troop.getCostProduction() <= this.money) {
-			this.money -= troop.getCostProduction();
-			productions.add(new Production(troop));
-		}
-	}
-	
+	/**
+	 * Adds due income to the castle, propagate the tick to the production units,
+	 * if a production if finished, remove it from the production line, dispatches units,
+	 * remove empty orders.
+	 */
 	public void tick() {
 		
 		// Add money each tick. If the duke is neutral, it's 10% of the normal income.
@@ -89,105 +99,148 @@ public class Castle {
 			this.money += this.level * 10;
 		}
 		
+		/* One production unit can only work on one production at the same time
+		 * So only do numProductionUnit operation per tick */
+		int numDone = 0;
 		Iterator<Production> i = productions.iterator();
+		while (i.hasNext() && numDone < this.numProductionUnit) {
+			Production production = i.next();
+			production.tick();
+			numDone++;
+		   
+			if (production.isFinish()) {
+				/* If the production was a castle update, levels up the castle.
+				 * If not, add the troop in production to the castle's troops */
+				if (production.isCastle()) {
+					this.level++;
+				} else {
+					this.addTroop(production.getTroop());
+				}
+				i.remove();
+			}
+		}
+		
+		/* Dispatches up to numDispatchMax troop ready to be dispatch 
+		 * Dispatches troops according to their speed (slowest troops first) */
+		if (troopsToDispatch.size() != 0) {
+			numDone = 0;
+			troopsToDispatch.sort(Comparator.comparing(Troop::getSpeed));
+			Iterator<Troop> i2 = troopsToDispatch.iterator();
+			while (i2.hasNext() && numDone < this.numDispatchMax) {
+				Troop troop = i2.next();
+				troop.getShape().setVisible(true);
+				troop.setCanMove(true);
+				numDone++;
+				i2.remove();
+			}
+		}
+		
+		/* For all orders, if empty deletes it, otherwise makes them move */
+		Iterator<Order> i3 = orders.iterator();
+		while (i3.hasNext()) {
+			Order order = i3.next();
+			if (order.getTroops().size() != 0) {
+				order.moveAll();
+			} else {
+				i3.remove();
+			}
+		}
+	}
+
+	
+	/**
+	 * Adds a troop to the castle's troops.
+	 * When a troop is added, its health is replenished.
+	 * @param troop	the troop that should be added
+	 */
+	public void addTroop(Troop troop) {
+		troop.setHasArrived(false);
+		troop.setHealth(troop.getMaxHealth());
+		troops.add(troop);
+	}
+	
+	/**
+	 * Adds a troop to the production line.
+	 * Remove its cost from the castle treasury.
+	 * @param troop
+	 */
+	public void addProduction(Troop troop) {
+		if (troop.getCostProduction() <= this.money) {
+			this.money -= troop.getCostProduction();
+			productions.add(new Production(troop));
+		}
+	}
+	
+	/**
+	 * Removes the first added element in production,
+	 * meaning the oldest one.
+	 */
+	public void cancelProduction() {
+		if (this.productions.size() > 0) {this.productions.remove(0);}
+	}
+	
+	/**
+	 * Removes all productions.
+	 */
+	public void cancelAllProduction() {
+		this.productions.clear();
+	}
+	
+	/**
+	 * The castle's troops takes a certain amount of damage.
+	 * If a troop's health gets to 0, he is removed from troops.
+	 * @param damage	how much damage
+	 */
+	public void takesDamage(int damage) {
+		Iterator<Troop> i = troops.iterator();
 		while (i.hasNext()) {
-		   Production production = i.next();
-		   production.tick();
-		   if (production.isFinish()) {
-			   /* If the production was a castle update, levels up the castle.
-			    * If not, add the troop in production to the castle's troops */
-			   if (production.isCastle()) {
-				   this.level++;
-			   } else {
-				   this.addTroop(production.getTroop());
-			   }
-			   i.remove();
+			Troop troop = i.next();
+			if (damage == 0) {break;}
+			if (troop.getHealth() <= damage) {
+				damage -= troop.getHealth();
+				i.remove();
+			} else {
+				troop.setHealth(troop.getHealth() - damage);
+				damage = 0;
 			}
 		}
-		
-		for (Order order:orders) {
-			order.moveAll();
-		}
-		
-	}
-
-	public Point getLocation() {
-		return location;
-	}
-
-	public Duke getOwner() {
-		return owner;
-	}
-
-	public int getLevel() {
-		return level;
-	}
-
-	public void setLevel(int level) {
-		this.level = level;
-	}	
-	
-	public String getNickname() {
-		return nickname;
-	}
-
-	public int getMoney() {
-		return money;
 	}
 	
-	public void setMoney(int money) {
-		this.money = money;
-	}
-
-
-	public List<Troop> getTroops() {
-		return troops;
-	}
 	
-	public List<Troop> getTroops(Object c) {
-		List<Troop> result = new ArrayList<>();
-		for (Troop troop: troops) {
-			if (troop.getClass() == c.getClass()) {
-				result.add(troop);
-			}
+	/**
+	 * Calculates how much damage the castle can deal.
+	 * @return	how much damage the castle can deal
+	 */
+	public int dealDamage() {
+		int result = 0;
+		for(Troop troop:troops) {
+			result += troop.getDamage();
 		}
 		return result;
 	}
-
-	public List<Production> getProductions() {
-		return productions;
-	}
 	
-	public Production getProduction(int index) {
-		if (index <= productions.size() - 1) {
-			return productions.get(index);
-		}
-		return null;		
-	}
 	
-	public Order getOrder(int index) {
-		if (index <= orders.size() - 1) {
-			return orders.get(index);
-		}
-		return null;		
-	}
-
-	public List<Order> getOrders() {
-		return orders;
-	}
-
+	/**
+	 * Add a new order to the castle.
+	 * @param target	the castle the troops should move towards
+	 * @param troops	the troops concerned by the order
+	 */
 	public void addOrder(Castle target, List<Troop> troops) {
 		
-		for (Troop troop:troops) {
-			troop.setLocation(this.location.add(this.doorDirection.toPoint().scalar(Settings.CASTLES_SIZE)));
-			Rectangle shape = new Rectangle(Main.gridSize, Main.gridSize);
-			shape.setX(-100);
-			shape.setY(-100);
-			shape.setFill(this.owner.getColor());
-			this.layer.getChildren().add(shape);
-			troop.setShape(shape);
+		Point pos;
+		for (Troop troop:troops) {			
+			pos = this.location.copy();
+			// Place x and y at the center of the castle
+			pos.translate(Settings.CASTLES_SIZE / 2,  Settings.CASTLES_SIZE / 2);
+			// Move the unit toward the door
+			pos.translate(this.doorDirection.toPoint().scalar(Settings.CASTLES_SIZE / 2 + 1));
+			troop.setLocation(pos);
+			drawTroop(troop);
+			troop.setCanMove(false);
+			this.troopsToDispatch.add(troop);
 		}
 		
+		/* If the order already exists, just append those new troops to it */
 		for (Order order:orders) {
 			if (order.getTarget() == target) {
 				order.addTroops(troops);
@@ -196,19 +249,23 @@ public class Castle {
 			}
 		}
 		
+		/* Or else, create a new order and remove all those troops from the castle */
 		this.orders.add(new Order(this, target, troops));
 		this.troops.removeAll(troops);
 	}
-
-	public Direction getDoorDirection() {
-		return doorDirection;
-	}
 	
-	public void addToLayer() {
+	
+	/**
+	 * Draw the castle and its door on the panel.
+	 */
+	public void drawSelf() {
 		Point pos = new Point(Main.gridStart.x + this.location.x * Main.gridSize, Main.gridStart.y + this.location.y * Main.gridSize);
-    	Rectangle shape = new Rectangle(pos.x, pos.y, Main.gridSize * Settings.CASTLES_SIZE, Main.gridSize * Settings.CASTLES_SIZE);
-    	shape.setFill(this.owner.getColor());
-    	this.layer.getChildren().add(shape);
+		this.shape.setX(pos.x);
+		this.shape.setY(pos.y);
+		this.shape.setWidth(Main.gridSize * Settings.CASTLES_SIZE);
+		this.shape.setHeight(Main.gridSize * Settings.CASTLES_SIZE);
+		this.shape.setFill(this.owner.getColor());
+    	this.layer.getChildren().add(this.shape);
         
         int width;
         int height;
@@ -233,4 +290,85 @@ public class Castle {
         this.layer.getChildren().add(door);
     }
 	
+
+	public void drawTroop(Troop troop) {
+		Rectangle shape = new Rectangle(Main.gridSize * Settings.SOLDIER_SIZE, Main.gridSize * Settings.SOLDIER_SIZE);
+		shape.setFill(this.owner.getColor());
+		shape.setVisible(false);
+		this.layer.getChildren().add(shape);
+		troop.setShape(shape);
+	}
+	
+	public void undrawTroop(Troop troop) {
+		this.layer.getChildren().remove(troop.getShape());
+	}
+	
+	
+	
+	/* GETTERS AND SETTERS */
+	
+
+	public Direction getDoorDirection() {return doorDirection;}
+	public Point getLocation() {return location;}
+	public Duke getOwner() {return owner;}
+	
+	public void setOwner(Duke owner) {
+		this.owner = owner;
+		this.shape.setFill(this.owner.getColor());
+	}
+
+	public int getLevel() {return level;}
+	public void setLevel(int level) {this.level = level;}	
+	public String getNickname() {return nickname;}
+	public int getMoney() {	return money;}
+	public void setMoney(int money) {this.money = money;}
+	public List<Troop> getTroops() {return troops;}
+	
+	/**
+	 * Returns troops but only those of a certain type.
+	 * @param c	the type of troop you want to get
+	 * @return 	troops but only those of a certain type.
+	 */
+	public List<Troop> getTroops(Object c) {
+		List<Troop> result = new ArrayList<>();
+		for (Troop troop: troops) {
+			if (troop.getClass() == c.getClass()) {
+				result.add(troop);
+			}
+		}
+		return result;
+	}
+
+	public List<Production> getProductions() {return productions;}
+	
+	/** 
+	 * Return only the index nth production.
+	 * If out of bound, return null;
+	 * 
+	 * @param index	the index of the production
+	 * @return		the index nth production
+	 */
+	public Production getProduction(int index) {
+		if (index <= productions.size() - 1) {
+			return productions.get(index);
+		}
+		return null;		
+	}
+
+	public List<Order> getOrders() {return orders;}
+	
+	/** Return only the index nth order
+	 * 	If out of bound, return null;
+	 * 
+	 * @param index	the index of the order
+	 * @return		the index nth order
+	 */
+	public Order getOrder(int index) {
+		if (index <= orders.size() - 1) {
+			return orders.get(index);
+		}
+		return null;		
+	}
+
+		
 }

@@ -1,5 +1,14 @@
 package myGame;
 
+/**
+ * Give a level of abstraction when speaking about direction.
+ * The developer can use functions such as isNorth() instead on relying
+ * on arbitrary values.
+ * @author Thomas Barillot and Maël Bouquinet
+ * @version 1.0
+ * @since   2019-12-23
+ *
+ */
 public class Direction {
 	/**
 	 * 0 = North

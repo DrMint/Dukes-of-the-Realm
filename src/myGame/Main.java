@@ -1,27 +1,17 @@
 /*
  * TODO: 
+ * BUG:
+ * Il semblerai qu'il y a des mélanges dans les troupes lorsque l'on envoie deux troupe de deux chateau différent.
+ * 
  * 
  * 
  * Pour avoir 15 :
  * 
  * Ecrire la javaDoc
  * 
- * Si le château a un ordre de déplacement, il envoie au maximum trois troupes par sa porte (en commençant par les plus lentes).
- * 
- * La file de production doit produire un element à la fois seulement
- *  
- * Si le château et le soldat appartiennent au même joueur, le soldat rejoins la réserve du château.
- * 
- * Sinon, le soldat attaque le château. Pour chaque point de dégât du soldat, on tire au hasard un type de soldat et on applique un point de dommage à au premier soldat de la réserve du château (i.e., on décrémente de 1 le compteur de point de vie de ce soldat). Si la réserve est vide, les dégâts supplémentaires sont perdus. Une fois tous ses points de dégâts effectués, le soldat attaquant est détruit.
- * Pour cela, vous avez deux options : soit le château contient une liste de soldats par type, soit le château dispose de compteurs représentant le nombre de soldats d’un type et de compteurs de dégâts pour chaque type de soldats, les objets de type soldats n’étant dans ce cas créés que lorsqu’ils quittent le château pour attaquer.
- * 
- * À la fin de l’attaque, si la réserve de soldats du château est vide, le château change de propriétaire pour appartenir au duc attaquant. Il conserve son trésor, mais toute production en cours est annulée.
- * 
  * Les différents types de soldats doivent être aisément identifiable.
  * 
  * Pouvoir retirer le dernier élement de la file de production voir de l'annuler complétement.
- * 
- * Au début du jeu, chaque duc (non neutre) possède un trésor vide
  * 
  * Il sera possible de sauvegarder une partie et de charger une sauvegarde depuis le disque (voir ObjectOutputStream et ObjectInputStream).
  * 
@@ -102,10 +92,10 @@ public class Main extends Application {
 	private Date turnEnd;
 	private int turnCounter = -1;
 
-	private Input input;
+	private Input input = new Input(scene);
 	private AnimationTimer gameLoop;
 
-	private StatusBar statusBar = new StatusBar(root);
+	private StatusBar statusBar;
 
 	public static void main(String[] args) {
 		launch(args);
@@ -115,13 +105,28 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 
+		/* Prepare the scene.
+		 * Here's what to do when the player click on the scene */
+		scene.setOnMousePressed(e -> {
+			Point p = new Point((int) e.getX(), (int) e.getY());
+			p = pixelToGridCoordinates(p);
+
+			if (!statusBar.getPopupAttack().isVisible()) {
+				Castle tmp = getCastleFromPoint(p);
+				if (tmp != null && tmp != selectedCastle) {
+					selectedCastle = tmp;
+					statusBar.refreshStatusBar();
+				}
+			}
+		});
+		
 		scene.getStylesheets().add(getClass().getResource("/css/application.css").toExternalForm());
+		
 		primaryStage.setScene(scene);
 		primaryStage.setResizable(false);
 		primaryStage.show();
 
-		/*
-		 * Compare the window's ratio and the grid's ratio, so that the grid is as big
+		/* Compare the window's ratio and the grid's ratio, so that the grid is as big
 		 * as possible without being stretch. There is currently a problem with some
 		 * grid size (ie: 20*10)
 		 */
@@ -198,6 +203,7 @@ public class Main extends Application {
 			}
 			dukes.add(new Duke(selectedName, selectedColor));
 		}
+		
 		/* We will consider that Duke 0 is the player */
 		dukes.get(0).isPlayer(true);
 
@@ -229,16 +235,20 @@ public class Main extends Application {
 			selectedName = (String) getRandomElemInList(castlesNames);
 			castlesNames.remove(selectedName);
 			selectedPoint = (Point) getRandomElemInList(points);
-			for (int x = -Settings.MIN_DISTANCE_CASTLES * Settings.CASTLES_SIZE; x <= Settings.MIN_DISTANCE_CASTLES
-					* Settings.CASTLES_SIZE; x++) {
-				for (int y = -Settings.MIN_DISTANCE_CASTLES * Settings.CASTLES_SIZE; y <= Settings.MIN_DISTANCE_CASTLES
-						* Settings.CASTLES_SIZE; y++) {
-					points.remove(points
-							.removeIf(Point.PredicatIsEquals(new Point(selectedPoint.x + x, selectedPoint.y + y))));
+			
+			Castle c = new Castle(selectedName, duke, Settings.PLAYER_DEFAULT_MONEY, 1, defaultTroop, selectedPoint,
+					  playfieldLayer, new Direction(getRandomIntegerBetweenRange(0, 4)));
+			
+			c.drawSelf();
+			castles.add(c);
+			
+			/* Remove all points around and covered by the castle */
+			for (int x = -Settings.MIN_DISTANCE_CASTLES * Settings.CASTLES_SIZE; x <= Settings.MIN_DISTANCE_CASTLES * Settings.CASTLES_SIZE; x++) {
+				for (int y = -Settings.MIN_DISTANCE_CASTLES * Settings.CASTLES_SIZE; y <= Settings.MIN_DISTANCE_CASTLES	* Settings.CASTLES_SIZE; y++) {
+					points.remove(points.removeIf(Point.PredicatIsEquals(new Point(selectedPoint.x + x, selectedPoint.y + y))));
 				}
 			}
-			Castle c = new Castle(selectedName, duke, Settings.PLAYER_DEFAULT_MONEY, 1, defaultTroop, selectedPoint,
-					playfieldLayer, new Direction(getRandomIntegerBetweenRange(0, 4)));
+			
 			if (duke.isNeutral()) {
 				c.setMoney(c.getMoney() + getRandomIntegerBetweenRange(0, Settings.NEUTRAL_MAX_MONEY));
 				c.setLevel(c.getLevel() + getRandomIntegerBetweenRange(0, Settings.NEUTRAL_MAX_LEVEL));
@@ -256,17 +266,23 @@ public class Main extends Application {
 					}
 				}
 			}
-			c.addToLayer();
-			castles.add(c);
 		}
-
+		
+		/* Cheat MAXIMUM */
+		for (int i = 0; i< 30; i++) {
+			castles.get(0).addTroop(new Catapult());
+			castles.get(0).addTroop(new Knight());
+			castles.get(0).addTroop(new Spearman());
+		}
+		
+		
 		/* Already select the player's castle and show the Status Bar */
 		selectedCastle = castles.get(0);
 
-		loadGame();
+		input.addListeners();
 
+		statusBar = new StatusBar(root);
 		statusBar.refreshStatusBar();
-		statusBar.setVisible(true);
 
 		/* Add pause text */
 		textPause.setText("PAUSE");
@@ -280,39 +296,38 @@ public class Main extends Application {
 			@Override
 			public void handle(long now) {
 
+				/* If the game isn't pause, sends ticks to all the castles and moves the orders */
 				if (!isPaused && !statusBar.getPopupAttack().isVisible()) {
 					if (turnCounter == -1) {
 						turnCounter++;
 						turnStart = new Date();
 					} else {
 						turnEnd = new Date();
-						int timeElapsed = (int) ((turnEnd.getTime() - turnStart.getTime()) / 1000);
+						int timeElapsed = (int) ((turnEnd.getTime() - turnStart.getTime()));
 						if (timeElapsed >= Settings.TURN_DURATION) {
 							turnCounter++;
 							turnStart = new Date();
+							statusBar.refreshStatusBar();
 							for (Castle castle : castles) {
 								castle.tick();
 								for (Castle c : castles) {
 									for (Order o : c.getOrders()) {
-										o.refresh();
+										o.tick();
 									}
-								}
-
-								if (statusBar.isVisible()) {
-									statusBar.refreshStatusBar();
 								}
 							}
 						}
 					}
 				}
 
+				/* If a pop-up asks for a refresh, do it */
 				if (statusBar.getPopupAttack().isVisible()) {
 					if (statusBar.getPopupAttack().needRefresh()) {
-						statusBar.getPopupAttack().refreshPopup();
+						statusBar.getPopupAttack().refresh();
 					}
 
 					if (statusBar.getPopupAttack().getPopupTroop().needRefresh()) {
-						statusBar.getPopupAttack().refreshPopup();
+						statusBar.getPopupAttack().refresh();
 					}
 				}
 
@@ -339,27 +354,6 @@ public class Main extends Application {
 		gameLoop.start();
 	}
 
-	private void loadGame() {
-		input = new Input(scene);
-		input.addListeners();
-
-		statusBar.createStatusBar();
-
-		/* Here's what to do when the player click on the scene */
-		scene.setOnMousePressed(e -> {
-			Point p = new Point((int) e.getX(), (int) e.getY());
-			p = pixelToGridCoordinates(p);
-
-			if (!statusBar.getPopupAttack().isVisible()) {
-				Castle tmp = getCastleFromPoint(p);
-				if (tmp != null && tmp != selectedCastle) {
-					selectedCastle = tmp;
-					statusBar.refreshStatusBar();
-				}
-			}
-		});
-	}
-
 	/**
 	 * Convert a pixel from the window into its grid coordinates
 	 * 
@@ -383,8 +377,11 @@ public class Main extends Application {
 	static public Castle getCastleFromPoint(Point p) {
 
 		for (Castle castle : Main.castles) {
-			if (p.x >= castle.getLocation().x && p.x < castle.getLocation().x + Settings.CASTLES_SIZE
-					&& p.y >= castle.getLocation().y && p.y < castle.getLocation().y + Settings.CASTLES_SIZE) {
+			if (p.x >= castle.getLocation().x && 
+				p.y >= castle.getLocation().y &&
+				p.x < castle.getLocation().x + Settings.CASTLES_SIZE &&
+				p.y < castle.getLocation().y + Settings.CASTLES_SIZE)
+			{
 				return castle;
 			}
 		}
