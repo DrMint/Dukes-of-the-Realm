@@ -56,36 +56,74 @@ public class PopupTroop extends Popup{
 		buttonExitPopup.setOnAction(value ->  {
 			hide();
         });
-		pane.add(buttonExitPopup, 1, 0);
-		pane.getRowConstraints().add(new RowConstraints(20));
-		pane.getColumnConstraints().add(new ColumnConstraints(100));
-		pane.getColumnConstraints().add(new ColumnConstraints(100));
-		pane.getColumnConstraints().add(new ColumnConstraints(100));
+		pane.add(buttonExitPopup, 3, 0);
+		pane.getRowConstraints().add(new RowConstraints(60));
+		pane.getRowConstraints().add(new RowConstraints(40));
+		pane.getRowConstraints().add(new RowConstraints(40));
+		pane.getRowConstraints().add(new RowConstraints(40));
+		pane.getRowConstraints().add(new RowConstraints(60));
+		pane.getRowConstraints().add(new RowConstraints(60));
+		pane.getColumnConstraints().add(new ColumnConstraints(150));
+		pane.getColumnConstraints().add(new ColumnConstraints(40));
+		pane.getColumnConstraints().add(new ColumnConstraints(60));
+		pane.getColumnConstraints().add(new ColumnConstraints(30));
 		
-		pane.add(textSpearAvailable, 0, 1);
-		pane.add(textKnightAvailable, 0, 2);
-		pane.add(textCatapultAvailable, 0, 3);
-		pane.add(textTotalAvailable, 0, 4);
+		Text textSpear = new Text("Spearman:");
+		Text textKnight = new Text("Knight:");
+		Text textCatapult = new Text("Catapult:");
+		Text textTotal = new Text("Total:");
 		
-		Button buttonAddSpear = new Button("+");
+		Button buttonAddSpear = new Button("->");
 		buttonAddSpear.setOnAction(value ->  {addSpear();});
 		
-		Button buttonAddKnight = new Button("+");
+		Button buttonAddKnight = new Button("->");
 		buttonAddKnight.setOnAction(value ->  {addKnight();});
 		
-		Button buttonCatapult = new Button("+");
+		Button buttonCatapult = new Button("->");
 		buttonCatapult.setOnAction(value ->  {addCatapult();});
 		
-		pane.add(buttonAddSpear, 1, 1);
-		pane.add(buttonAddKnight, 1, 2);
-		pane.add(buttonCatapult, 1, 3);
+		buttonAddSpear.getStyleClass().add("addButton");
+		buttonAddKnight.getStyleClass().add("addButton");
+		buttonCatapult.getStyleClass().add("addButton");
 		
-		pane.add(textSpearUsed, 2, 1);
-		pane.add(textKnightUsed, 2, 2);
-		pane.add(textCatapultUsed, 2, 3);
-		pane.add(textTotalUsed, 2, 4);
+		textSpear.getStyleClass().add("normal");
+		textKnight.getStyleClass().add("normal");
+		textCatapult.getStyleClass().add("normal");
+		textTotal.getStyleClass().add("normal");
+		
+		textSpearAvailable.getStyleClass().add("normal");
+		textKnightAvailable.getStyleClass().add("normal");
+		textCatapultAvailable.getStyleClass().add("normal");
+		textTotalAvailable.getStyleClass().add("normal");
+		
+		textSpearUsed.getStyleClass().add("normal");
+		textKnightUsed.getStyleClass().add("normal");
+		textCatapultUsed.getStyleClass().add("normal");
+		textTotalUsed.getStyleClass().add("normal");
+		
+		pane.add(textSpear, 0, 1);
+		pane.add(textKnight, 0, 2);
+		pane.add(textCatapult, 0, 3);
+		pane.add(textTotal, 0, 4);
+		
+		pane.add(textSpearAvailable, 1, 1);
+		pane.add(textKnightAvailable, 1, 2);
+		pane.add(textCatapultAvailable, 1, 3);
+		pane.add(textTotalAvailable, 1, 4);
+		
+		pane.add(buttonAddSpear, 2, 1);
+		pane.add(buttonAddKnight, 2, 2);
+		pane.add(buttonCatapult, 2, 3);
+		
+		pane.add(textSpearUsed, 3, 1);
+		pane.add(textKnightUsed, 3, 2);
+		pane.add(textCatapultUsed, 3, 3);
+		pane.add(textTotalUsed, 3, 4);
+		
+
 		
 		Button confirmButton = new Button("Confirmer");
+		confirmButton.getStyleClass().add("addButton");
 		confirmButton.setOnAction(value ->  {
 			if (TotalUsed != 0) {
 				List<Troop> troops = new ArrayList<>();
@@ -141,10 +179,10 @@ public class PopupTroop extends Popup{
 	public void refreshValues() {
 		TotalUsed = SpearUsed + KnightUsed + CatapultUsed;
 		
-		textSpearAvailable.setText("Spearman : " + (SpearAvailable - SpearUsed));
-		textKnightAvailable.setText("Knight : " + (KnightAvailable - KnightUsed));
-		textCatapultAvailable.setText("Catapult : " + (CatapultAvailable - CatapultUsed));
-		textTotalAvailable.setText("Total : " + (TotalAvailable - TotalUsed));
+		textSpearAvailable.setText(Integer.toString(SpearAvailable - SpearUsed));
+		textKnightAvailable.setText(Integer.toString(KnightAvailable - KnightUsed));
+		textCatapultAvailable.setText(Integer.toString(CatapultAvailable - CatapultUsed));
+		textTotalAvailable.setText(Integer.toString(TotalAvailable - TotalUsed));
 		
 		textSpearUsed.setText(Integer.toString(SpearUsed));
 		textKnightUsed.setText(Integer.toString(KnightUsed));

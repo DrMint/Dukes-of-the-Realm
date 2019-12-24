@@ -34,6 +34,7 @@
 .popup {
 	-fx-background-color: GhostWhite;
 	-fx-border-color: Grey;
+	-fx-padding: 0px 40px;
 	-fx-border-style: solid;
 	-fx-border-width: 2px;
 }

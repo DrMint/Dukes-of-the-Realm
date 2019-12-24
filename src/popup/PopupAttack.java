@@ -30,10 +30,10 @@ public class PopupAttack extends Popup{
 		super(root);
 		hide();
 		
-		for(int i = 0; i < textOstsCastleName.length; i++) {textOstsCastleName[i] = new Text();}
-		for(int i = 0; i < textOstsSpear.length; i++) {textOstsSpear[i] = new Text();}
-		for(int i = 0; i < textOstsKnight.length; i++) {textOstsKnight[i] = new Text();}
-		for(int i = 0; i < textOstsCatapult.length; i++) {textOstsCatapult[i] = new Text();}
+		for(int i = 0; i < textOstsCastleName.length; i++) {textOstsCastleName[i] = new Text(); textOstsCastleName[i].getStyleClass().add("normal");}
+		for(int i = 0; i < textOstsSpear.length; i++) {textOstsSpear[i] = new Text(); textOstsSpear[i].getStyleClass().add("subtitle");}
+		for(int i = 0; i < textOstsKnight.length; i++) {textOstsKnight[i] = new Text(); textOstsKnight[i].getStyleClass().add("subtitle");}
+		for(int i = 0; i < textOstsCatapult.length; i++) {textOstsCatapult[i] = new Text(); textOstsCatapult[i].getStyleClass().add("subtitle");}
 		
 		layer.getChildren().add(pane);
 		
@@ -47,21 +47,26 @@ public class PopupAttack extends Popup{
 		buttonExitPopup.setOnAction(value ->  {
 			hide();
         });
-		pane.add(buttonExitPopup, 1, 0);
-		pane.getRowConstraints().add(new RowConstraints(20));
+		pane.add(buttonExitPopup, 3, 0);
+		pane.getRowConstraints().add(new RowConstraints(40));
 		pane.getColumnConstraints().add(new ColumnConstraints(60));
 		pane.getColumnConstraints().add(new ColumnConstraints(60));
 		pane.getColumnConstraints().add(new ColumnConstraints(60));
 		
 		for (int i = 0; i < Settings.NUM_OSTS_SHOWN; i++) {
+			pane.getRowConstraints().add(new RowConstraints(40));
+			pane.getRowConstraints().add(new RowConstraints(20));
 			pane.add(textOstsCastleName[i], 0, 1 + i * 2, 3, 1);
 			pane.add(textOstsSpear[i], 0, 1 + i * 2 + 1);
 			pane.add(textOstsKnight[i], 1, 1 + i * 2 + 1);
 			pane.add(textOstsCatapult[i], 2, 1 + i * 2 + 1);
 		}
 		
+		pane.getRowConstraints().add(new RowConstraints(100));
+		
 		Button buttonAddOrder = new Button("Envoyer un ost");
-		pane.add(buttonAddOrder, 0, Settings.NUM_OSTS_SHOWN + 1, 3, 1);
+		buttonAddOrder.getStyleClass().add("addButton");
+		pane.add(buttonAddOrder, 0, Settings.NUM_OSTS_SHOWN  * 2 + 1, 3, 1);
 		buttonAddOrder.setOnAction(value ->  {
 			waitingToSelectCastle = true;
 			pane.setVisible(false);

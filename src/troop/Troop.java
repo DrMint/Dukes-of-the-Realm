@@ -1,6 +1,7 @@
 package troop;
 
 import javafx.scene.shape.Rectangle;
+import myGame.Direction;
 import myGame.Main;
 
 import myGame.Point;
@@ -17,6 +18,7 @@ public abstract class Troop {
 	private Rectangle shape = new Rectangle();
 	private boolean canMove = true;
 	private boolean hasArrived = false;
+	private boolean turnClockwise = true;
 	
 	public Troop(int costProduction, int timeProduction, int speed, int health, int damage) {
 		this.costProduction = costProduction;
@@ -35,6 +37,7 @@ public abstract class Troop {
 	 */
 	public void move(Point target) {
 		if (!canMove) return;
+		
 		/* Put the target at the center of the castle */ 
 		target.translate(Settings.CASTLES_SIZE / 2, Settings.CASTLES_SIZE / 2);
 		for (int i = 0; i < speed; i++) {
@@ -48,21 +51,55 @@ public abstract class Troop {
 				break;
 			}
 			
-			/* If the translation in the X axis is higher than the Y axis, do the X axis */
-			if (Math.abs(location.x - target.x) > Math.abs(location.y - target.y)) {
-				if (location.x < target.x) {
-					location.x++;
-				} else if (location.x > target.x) {
-					location.x--;
+			
+			Direction nextMove = calculateDirectionForNextMove(target);
+			
+			/* If this next position is in a castle */
+			if (Main.getCastleFromPoint(location.add(nextMove)) != null) {
+				if (this.turnClockwise) {
+					nextMove.turnClockwise();					
+				} else {
+					nextMove.turnCounterClockwise();	
 				}
-			} else {
-				if (location.y < target.y) {
-					location.y++;
-				} else if (location.y > target.y) {
-					location.y--;
+				
+				/* If we apply this nextMove, will the next move's nextMove will be the same as my current position? 
+				 * TL;DR: Will my poor troop be stuck in an endless loop? */
+				if (location.add(nextMove).add(calculateDirectionForNextMove(location.add(nextMove), target)).equals(location)) {
+					this.turnClockwise = !this.turnClockwise;
 				}
 			}
+			
+			location.translate(nextMove);
 		}	
+	}
+	
+	public Direction calculateDirectionForNextMove(Point location, Point target) {
+		
+		Direction result = new Direction();
+		
+		/* If the translation in the X axis is higher than the Y axis, do the X axis */
+		if (Math.abs(location.x - target.x) > Math.abs(location.y - target.y)) {
+			if (location.x < target.x) {
+				result.setEast();
+				return result;
+			} else if (location.x > target.x) {
+				result.setWest();
+				return result;
+			}
+		} else {
+			if (location.y < target.y) {
+				result.setSouth();
+				return result;
+			} else if (location.y > target.y) {
+				result.setNorth();
+				return result;
+			}
+		}
+		return null;
+	}
+	
+	public Direction calculateDirectionForNextMove(Point target) {
+		return calculateDirectionForNextMove(this.location, target);
 	}
 
 	public int getCostProduction() {

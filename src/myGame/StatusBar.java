@@ -35,6 +35,8 @@ public class StatusBar {
 	private Button addCatapultButton = new Button("+");
 	private Button addLevelButton = new Button("+");
 	private Button attackButton = new Button("Attaque");
+	private Button removeLastProductionButton = new Button("-");
+	private Button removeAllProductionButton = new Button("Annuler tous");
 	
 	private PopupAttack popupAttack;
 	
@@ -165,6 +167,25 @@ public class StatusBar {
 			statsProduction.add(text, 0, index);
 			index++;
 		}
+		
+		statsProduction.getColumnConstraints().add(new ColumnConstraints(180));
+		
+		removeLastProductionButton.getStyleClass().add("addButton");
+		removeAllProductionButton.getStyleClass().add("addButton");
+		
+		removeLastProductionButton.setOnAction(value ->  {
+        	Main.selectedCastle.cancelProduction();
+        });
+		
+		removeAllProductionButton.setOnAction(value ->  {
+        	Main.selectedCastle.cancelAllProduction();
+        });
+		
+		statsProduction.add(removeLastProductionButton, 1, 0);
+		statsProduction.add(removeAllProductionButton, 1, 1);
+		removeLastProductionButton.setVisible(false);
+		removeAllProductionButton.setVisible(false);
+
 	}
 	
 	
@@ -208,6 +229,20 @@ public class StatusBar {
 				text.setText(tmp.getName() + " (" + (tmp.getTotalTime() - tmp.getTimeRemaining()) + "/" + tmp.getTotalTime() + ")");
 			}
 			index++;
+		}
+		
+		/* If there is at least one production, shows the button to remove a production 
+		 * If there are more than one production, shows the button to remove all productions */
+		if (Main.selectedCastle.getProduction(0) != null) {
+			removeLastProductionButton.setVisible(true);
+			if (Main.selectedCastle.getProduction(1) != null) {
+				removeAllProductionButton.setVisible(true);
+			} else {
+				removeAllProductionButton.setVisible(false);
+			}
+		} else {
+			removeLastProductionButton.setVisible(false);
+			removeAllProductionButton.setVisible(false);
 		}
 		
 		// Refresh Tooltip

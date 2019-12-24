@@ -80,7 +80,7 @@ public class Castle {
 		
 		if (cost <= this.money) {
 			this.money -= cost;
-			productions.add(new Production(time));
+			productions.add(new Production(time, cost));
 		}
 	
 	}
@@ -176,13 +176,19 @@ public class Castle {
 	 * meaning the oldest one.
 	 */
 	public void cancelProduction() {
-		if (this.productions.size() > 0) {this.productions.remove(0);}
+		if (this.productions.size() > 0) {
+			this.money += this.productions.get(0).getCost() * Settings.CANCEL_PRODUCTION_RETURN_RATIO;
+			this.productions.remove(0);
+		}
 	}
 	
 	/**
 	 * Removes all productions.
 	 */
 	public void cancelAllProduction() {
+		for(Production production:productions) {
+			this.money += production.getCost() * Settings.CANCEL_PRODUCTION_RETURN_RATIO;
+		}
 		this.productions.clear();
 	}
 	

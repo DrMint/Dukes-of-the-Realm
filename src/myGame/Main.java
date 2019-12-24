@@ -1,17 +1,11 @@
 /*
  * TODO: 
- * BUG:
- * Il semblerai qu'il y a des mélanges dans les troupes lorsque l'on envoie deux troupe de deux chateau différent.
- * 
- * 
  * 
  * Pour avoir 15 :
  * 
  * Ecrire la javaDoc
  * 
  * Les différents types de soldats doivent être aisément identifiable.
- * 
- * Pouvoir retirer le dernier élement de la file de production voir de l'annuler complétement.
  * 
  * Il sera possible de sauvegarder une partie et de charger une sauvegarde depuis le disque (voir ObjectOutputStream et ObjectInputStream).
  * 
@@ -20,8 +14,6 @@
  * Les troupes ne doivent toujours pas se superposer au départ
  * 
  * Pour avoir + :
- * 
- * Les soldats évitent les chateaux
  * 
  * Les joueurs adverses devront disposer d’une intelligence artificielle minimaliste les faisant agir.
  * On se satisfera totalement que les ducs adverses effectuent des actions aléatoires à intervalles réguliers.
@@ -231,13 +223,16 @@ public class Main extends Application {
 			defaultTroop.add(troop);
 		}
 
+		Direction doorDirection;
 		for (Duke duke : dukes) {
 			selectedName = (String) getRandomElemInList(castlesNames);
 			castlesNames.remove(selectedName);
 			selectedPoint = (Point) getRandomElemInList(points);
+			doorDirection = new Direction();
+			doorDirection.randomize();
 			
 			Castle c = new Castle(selectedName, duke, Settings.PLAYER_DEFAULT_MONEY, 1, defaultTroop, selectedPoint,
-					  playfieldLayer, new Direction(getRandomIntegerBetweenRange(0, 4)));
+					  playfieldLayer, doorDirection);
 			
 			c.drawSelf();
 			castles.add(c);
@@ -268,16 +263,28 @@ public class Main extends Application {
 			}
 		}
 		
-		/* Cheat MAXIMUM */
+		/* Already select the player's castle and show the Status Bar */
+		selectedCastle = castles.get(0);
+		
+		
+		/*
+		// DEBUG: Cheat MAXIMUM
 		for (int i = 0; i< 30; i++) {
 			castles.get(0).addTroop(new Catapult());
 			castles.get(0).addTroop(new Knight());
 			castles.get(0).addTroop(new Spearman());
+			castles.get(0).setMoney(1000);
 		}
 		
+		// DEBUG: Launch order in all direction
+		for (Castle castle:castles) {
+			List<Troop> tmp = new ArrayList<>();
+			tmp.add(castles.get(0).getTroops(new Catapult()).get(0));
+			castles.get(0).addOrder(castle, tmp);
+		}
+		*/
 		
-		/* Already select the player's castle and show the Status Bar */
-		selectedCastle = castles.get(0);
+
 
 		input.addListeners();
 

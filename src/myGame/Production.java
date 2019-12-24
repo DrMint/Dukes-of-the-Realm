@@ -4,26 +4,25 @@ import troop.Troop;
 
 public class Production {
 
-	private int timeRemaining;
 	private int totalTime;
-	private String name;
+	private int timeRemaining;
+	private int cost;
 	private Troop troop;
-	private boolean isCastle;
-	private boolean isFinish;
+	private boolean isCastle = false;
+	private boolean isFinish = false;
 
 	public Production(Troop troop) {
-		this.isCastle = false;
 		this.totalTime = troop.getTimeProduction();
 		this.timeRemaining = troop.getTimeProduction();
 		this.troop = troop;
-		this.name = troop.toString();
+		this.cost = troop.getCostProduction();
 	}
 
-	public Production(int duration) {
+	public Production(int duration, int cost) {
 		this.isCastle = true;
-		this.timeRemaining = duration;
 		this.totalTime = duration;
-		this.name = "Chateau";
+		this.timeRemaining = duration;
+		this.cost = cost;
 	}
 	
 	public void tick() {
@@ -50,11 +49,19 @@ public class Production {
 	}
 	
 	public String getName() {
-		return name;
+		if (isCastle) {
+			return "Chateau";
+		} else {			
+			return troop.toString();
+		}
 	}
 
 	public boolean isCastle() {
 		return isCastle;
+	}
+
+	public int getCost() {
+		return cost;
 	}
 	
 	

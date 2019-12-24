@@ -33,23 +33,29 @@ public class Point {
 		return p.x == this.x && p.y == this.y;
 	}
 
-	
-	public Point add(Point p) {
-		return new Point(this.x + p.x, this.y + p.y);
-	}
-	
 	public Point add(int x, int y) {
 		return new Point(this.x + x, this.y + y);
 	}
 	
-	public void translate(Point p) {
-		this.x += p.x;
-		this.y += p.y;
+	public Point add(Point p) {
+		return this.copy().add(p.x, p.y);
+	}
+	
+	public Point add(Direction d) {
+		return this.copy().add(d.toPoint());
 	}
 	
 	public void translate(int x, int y) {
 		this.x += x;
 		this.y += y;
+	}
+	
+	public void translate(Point p) {
+		translate(p.x, p.y);
+	}
+	
+	public void translate(Direction d) {
+		translate(d.toPoint());
 	}
 	
 	public Point scalar(int i) {
