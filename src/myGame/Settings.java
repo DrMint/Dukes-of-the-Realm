@@ -24,6 +24,9 @@ public class Settings {
 	public static final	int GRID_HEIGHT = 120;
 	public static final float GRID_THICKNESS = 0.1f;	// Thickness of the grid lines
 	
+	public static final String LANGUAGE = "fr";			// i.e: en (must be lower cases)
+	public static final String COUNTRY = "FR";			// i.e: US (must be capitalize)
+	
 	public static final float CANCEL_PRODUCTION_RETURN_RATIO = 0.5f;
 	
 	public static final int CASTLES_SIZE = 5; 			// Preferably, an odd number

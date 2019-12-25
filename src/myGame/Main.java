@@ -25,6 +25,7 @@
 package myGame;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,6 +33,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -71,6 +73,7 @@ public class Main extends Application {
 	public List<Duke> dukes = new ArrayList<>();
 	static public List<Castle> castles = new ArrayList<>();
 	static public Castle selectedCastle;
+	static public Properties language = new Properties();
 
 	private Pane playfieldLayer = new Pane();
 	private Text textPause = new Text();
@@ -95,7 +98,12 @@ public class Main extends Application {
 
 	@SuppressWarnings("unlikely-arg-type")
 	@Override
-	public void start(Stage primaryStage) {
+	public void start(Stage primaryStage) throws IOException {
+		
+		/* Import the proper language properties file according to Settings.LANGUAGE and COUNTRY */
+        InputStream resourceStream = Main.class.getResourceAsStream(
+        		"/languages/MessagesBundle_" + Settings.LANGUAGE + "_" + Settings.COUNTRY + ".properties");
+		language.load(resourceStream);
 
 		/* Prepare the scene.
 		 * Here's what to do when the player click on the scene */

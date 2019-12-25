@@ -64,7 +64,7 @@ public class PopupAttack extends Popup{
 		
 		pane.getRowConstraints().add(new RowConstraints(100));
 		
-		Button buttonAddOrder = new Button("Envoyer un ost");
+		Button buttonAddOrder = new Button(Main.language.getProperty("popupAttackSendButton"));
 		buttonAddOrder.getStyleClass().add("addButton");
 		pane.add(buttonAddOrder, 0, Settings.NUM_OSTS_SHOWN  * 2 + 1, 3, 1);
 		buttonAddOrder.setOnAction(value ->  {
@@ -101,9 +101,9 @@ public class PopupAttack extends Popup{
 			if (tmp != null) {
 				textOstsCastleName[i].setFill(tmp.getTarget().getOwner().getColor());
 				textOstsCastleName[i].setText(tmp.getTarget().getNickname());
-				textOstsSpear[i].setText("S : " + tmp.getTroops(new Spearman()).size());
-				textOstsKnight[i].setText("K : " + tmp.getTroops(new Knight()).size());
-				textOstsCatapult[i].setText("C : " + tmp.getTroops(new Catapult()).size());
+				textOstsSpear[i].setText(Main.language.getProperty("spearMini") + tmp.getTroops(new Spearman()).size());
+				textOstsKnight[i].setText(Main.language.getProperty("knightMini") + tmp.getTroops(new Knight()).size());
+				textOstsCatapult[i].setText(Main.language.getProperty("catapultMini") + tmp.getTroops(new Catapult()).size());
 			} else {
 				textOstsCastleName[i].setText("");
 				textOstsSpear[i].setText("");

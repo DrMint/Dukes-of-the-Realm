@@ -34,9 +34,9 @@ public class StatusBar {
 	private Button addKnightButton = new Button("+");
 	private Button addCatapultButton = new Button("+");
 	private Button addLevelButton = new Button("+");
-	private Button attackButton = new Button("Attaque");
+	private Button attackButton = new Button(Main.language.getProperty("statusBarSendButton"));
 	private Button removeLastProductionButton = new Button("-");
-	private Button removeAllProductionButton = new Button("Annuler tous");
+	private Button removeAllProductionButton = new Button(Main.language.getProperty("statusBarRemoveProductions"));
 	
 	private PopupAttack popupAttack;
 	
@@ -112,25 +112,25 @@ public class StatusBar {
         
         // Adds tooltips
         Spearman tmpSpear = new Spearman();        
-        addSpearmanButton.setTooltip(new Tooltip( "Vitesse : " + tmpSpear.getSpeed()
-        									   	+ "\nVie : " + tmpSpear.getHealth()
-        										+ "\nDégats : " + tmpSpear.getDamage()
-        										+ "\n\nCoût: " + tmpSpear.getCostProduction()
-        										+ "\nTemps : " + tmpSpear.getTimeProduction()));
+        addSpearmanButton.setTooltip(new Tooltip( Main.language.getProperty("speed") + tmpSpear.getSpeed() + "\n" +
+								        		  Main.language.getProperty("health") + tmpSpear.getHealth() + "\n" +
+								        		  Main.language.getProperty("strength") + tmpSpear.getDamage() + "\n" +
+								        		  Main.language.getProperty("cost") + tmpSpear.getCostProduction() + "\n" +
+								        		  Main.language.getProperty("time") + tmpSpear.getTimeProduction()));
 
         Knight tmpKnight = new Knight(); 
-        addKnightButton.setTooltip(new Tooltip( "Vitesse : " + tmpKnight.getSpeed()
-											   	+ "\nVie : " + tmpKnight.getHealth()
-												+ "\nDégats : " + tmpKnight.getDamage()
-												+ "\n\nCoût: " + tmpKnight.getCostProduction()
-												+ "\nTemps : " + tmpKnight.getTimeProduction()));
+        addKnightButton.setTooltip(new Tooltip( Main.language.getProperty("speed") + tmpKnight.getSpeed() + "\n" +
+								      		    Main.language.getProperty("health") + tmpKnight.getHealth() + "\n" +
+								      		    Main.language.getProperty("strength") + tmpKnight.getDamage() + "\n" +
+								      		    Main.language.getProperty("cost") + tmpKnight.getCostProduction() + "\n" +
+								      		    Main.language.getProperty("time") + tmpKnight.getTimeProduction()));
         
         Catapult tmpCatapult = new Catapult(); 
-        addCatapultButton.setTooltip(new Tooltip( "Vitesse : " + tmpCatapult.getSpeed()
-											   	+ "\nVie : " + tmpCatapult.getHealth()
-												+ "\nDégats : " + tmpCatapult.getDamage()
-												+ "\n\nCoût: " + tmpCatapult.getCostProduction()
-												+ "\nTemps : " + tmpCatapult.getTimeProduction()));
+        addCatapultButton.setTooltip(new Tooltip( Main.language.getProperty("speed") + tmpCatapult.getSpeed() + "\n" +
+									      		  Main.language.getProperty("health") + tmpCatapult.getHealth() + "\n" +
+									      		  Main.language.getProperty("strength") + tmpCatapult.getDamage() + "\n" +
+									      		  Main.language.getProperty("cost") + tmpCatapult.getCostProduction() + "\n" +
+									      		  Main.language.getProperty("time") + tmpCatapult.getTimeProduction()));
         
         
         statsTroops.getColumnConstraints().add(new ColumnConstraints(150));
@@ -206,18 +206,18 @@ public class StatusBar {
 		textCastleName.setText(Main.selectedCastle.getNickname());
 		textCastleName.setFill(Main.selectedCastle.getOwner().getColor());
 		if (Main.selectedCastle.getOwner().isNeutral()) {
-			textCastleOwner.setText("Appartient à un baron sans ambition");
+			textCastleOwner.setText(Main.language.getProperty("statusBarOwnership") + Main.language.getProperty("statusBarNoAmbition"));
 		} else {
-			textCastleOwner.setText("Appartient à : " + Main.selectedCastle.getOwner().toString());
+			textCastleOwner.setText(Main.language.getProperty("statusBarOwnership") + Main.selectedCastle.getOwner().toString());
 		}
-		textCastleLevel.setText("Niveau : " + Integer.toString(Main.selectedCastle.getLevel()));
-		textCastleMoney.setText("Trésor : " + Integer.toString(Main.selectedCastle.getMoney()));
+		textCastleLevel.setText(Main.language.getProperty("level") + Integer.toString(Main.selectedCastle.getLevel()));
+		textCastleMoney.setText(Main.language.getProperty("treasury") + Integer.toString(Main.selectedCastle.getMoney()));
 		
 		//Troops Stats
-		textCastleSpear.setText("Piquier : " + Integer.toString(Main.selectedCastle.getTroops(new Spearman()).size()));
-		textCastleKnight.setText("Chevalier : " + Integer.toString(Main.selectedCastle.getTroops(new Knight()).size()));
-		textCastleCatapult.setText("Onagre : " + Integer.toString(Main.selectedCastle.getTroops(new Catapult()).size()));
-		textCastleTroopTotal.setText("Total : " + Integer.toString(Main.selectedCastle.getTroops().size()));
+		textCastleSpear.setText(Main.language.getProperty("spear") + Integer.toString(Main.selectedCastle.getTroops(new Spearman()).size()));
+		textCastleKnight.setText(Main.language.getProperty("knight") + Integer.toString(Main.selectedCastle.getTroops(new Knight()).size()));
+		textCastleCatapult.setText(Main.language.getProperty("catapult") + Integer.toString(Main.selectedCastle.getTroops(new Catapult()).size()));
+		textCastleTroopTotal.setText(Main.language.getProperty("total") + Integer.toString(Main.selectedCastle.getTroops().size()));
 		
 		//Production Stats
 		Production tmp;
@@ -246,7 +246,8 @@ public class StatusBar {
 		}
 		
 		// Refresh Tooltip
-		addLevelButton.getTooltip().setText("Coût : " + Main.selectedCastle.costToLevel() + "\nTemps : " + Main.selectedCastle.timeToLevel());;
+		addLevelButton.getTooltip().setText(Main.language.getProperty("cost") + Main.selectedCastle.costToLevel() +
+				"\n" + Main.language.getProperty("time") + Main.selectedCastle.timeToLevel());;
 		
 	}
 

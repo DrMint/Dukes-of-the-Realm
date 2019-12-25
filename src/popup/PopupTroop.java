@@ -68,10 +68,10 @@ public class PopupTroop extends Popup{
 		pane.getColumnConstraints().add(new ColumnConstraints(60));
 		pane.getColumnConstraints().add(new ColumnConstraints(30));
 		
-		Text textSpear = new Text("Spearman:");
-		Text textKnight = new Text("Knight:");
-		Text textCatapult = new Text("Catapult:");
-		Text textTotal = new Text("Total:");
+		Text textSpear = new Text(Main.language.getProperty("spear"));
+		Text textKnight = new Text(Main.language.getProperty("knight"));
+		Text textCatapult = new Text(Main.language.getProperty("catapult"));
+		Text textTotal = new Text(Main.language.getProperty("total"));
 		
 		Button buttonAddSpear = new Button("->");
 		buttonAddSpear.setOnAction(value ->  {addSpear();});
@@ -122,7 +122,7 @@ public class PopupTroop extends Popup{
 		
 
 		
-		Button confirmButton = new Button("Confirmer");
+		Button confirmButton = new Button(Main.language.getProperty("popupTroopConfirmButton"));
 		confirmButton.getStyleClass().add("addButton");
 		confirmButton.setOnAction(value ->  {
 			if (TotalUsed != 0) {
