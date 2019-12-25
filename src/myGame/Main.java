@@ -11,8 +11,6 @@
  * 
  * Il peut y avoir aucune IA
  * 
- * Les troupes ne doivent toujours pas se superposer au départ
- * 
  * Pour avoir + :
  * 
  * Les joueurs adverses devront disposer d’une intelligence artificielle minimaliste les faisant agir.
@@ -257,15 +255,9 @@ public class Main extends Application {
 				c.setLevel(c.getLevel() + getRandomIntegerBetweenRange(0, Settings.NEUTRAL_MAX_LEVEL));
 				for (int i = 0; i <= c.getLevel() - 2; i++) {
 					switch (getRandomIntegerBetweenRange(0, 3)) {
-					case 0:
-						c.addTroop(new Spearman());
-						break;
-					case 1:
-						c.addTroop(new Knight());
-						break;
-					case 2:
-						c.addTroop(new Catapult());
-						break;
+						case 0:	c.addTroop(new Spearman()); break;
+						case 1:	c.addTroop(new Knight()); break;
+						case 2:	c.addTroop(new Catapult()); break;
 					}
 				}
 			}
@@ -275,7 +267,7 @@ public class Main extends Application {
 		selectedCastle = castles.get(0);
 		
 		
-		/*
+		
 		// DEBUG: Cheat MAXIMUM
 		for (int i = 0; i< 30; i++) {
 			castles.get(0).addTroop(new Catapult());
@@ -284,6 +276,7 @@ public class Main extends Application {
 			castles.get(0).setMoney(1000);
 		}
 		
+		/*
 		// DEBUG: Launch order in all direction
 		for (Castle castle:castles) {
 			List<Troop> tmp = new ArrayList<>();

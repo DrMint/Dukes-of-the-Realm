@@ -234,12 +234,28 @@ public class Castle {
 	public void addOrder(Castle target, List<Troop> troops) {
 		
 		Point pos;
+		Direction tmp;
+		int positionModifier = 0;
 		for (Troop troop:troops) {			
 			pos = this.location.copy();
 			// Place x and y at the center of the castle
 			pos.translate(Settings.CASTLES_SIZE / 2,  Settings.CASTLES_SIZE / 2);
 			// Move the unit toward the door
 			pos.translate(this.doorDirection.toPoint().scalar(Settings.CASTLES_SIZE / 2 + 1));
+			
+			// The following code allows the troops to be spawn at slightly different places
+			// so that they doesn't superpose each others.
+			tmp = this.doorDirection.copy();
+			switch (positionModifier) {
+				case 0: tmp.turnClockwise();pos.translate(tmp); break;
+				case 1: tmp.turnCounterClockwise();pos.translate(tmp); break;
+				case 2: pos.translate(tmp); break;
+				default: break;
+			}
+			
+			positionModifier++;
+			if (positionModifier > 2) {positionModifier = 0;}
+			
 			troop.setLocation(pos);
 			drawTroop(troop);
 			troop.setCanMove(false);
