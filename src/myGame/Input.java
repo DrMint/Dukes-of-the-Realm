@@ -71,27 +71,13 @@ public class Input {
 	// direction isn't handled.
 	// -------------------------------------------------
 
-	public boolean isMoveUp() {
-		return is(UP) && !is(DOWN);
-	}
-
-	public boolean isMoveDown() {
-		return is(DOWN) && !is(UP);
-	}
-
-	public boolean isMoveLeft() {
-		return is(LEFT) && !is(RIGHT);
-	}
-
-	public boolean isMoveRight() {
-		return is(RIGHT) && !is(LEFT);
-	}
-
-	public boolean isPause() {
-		return is(SPACE);
-	}
-
-	public boolean isExit() {
-		return is(ESCAPE);
-	}
+	
+	/* GETTERS AND SETTERS */
+	
+	public boolean isMoveUp() {return is(UP) && !is(DOWN);}
+	public boolean isMoveDown() {return is(DOWN) && !is(UP);}
+	public boolean isMoveLeft() {return is(LEFT) && !is(RIGHT);}
+	public boolean isMoveRight() {return is(RIGHT) && !is(LEFT);}
+	public boolean isPause() {return is(SPACE);}
+	public boolean isExit() {return is(ESCAPE);}
 }

@@ -9,7 +9,9 @@ package myGame;
  * @since   2019-12-23
  *
  */
-public class Direction {
+public class Direction implements java.io.Serializable {
+
+	private static final long serialVersionUID = -4635993413361705298L;
 	/**
 	 * 0 = North
 	 * 1 = East
@@ -70,6 +72,10 @@ public class Direction {
 			case 3: this.setWest(); return;
 		}
 	}
+	
+	
+	/* GETTERS AND SETTERS */
+	
 	
 	public boolean isNorth(){return direction == 0;}
 	public boolean isEast(){return direction == 1;}

@@ -2,11 +2,13 @@ package myGame;
 
 import troop.Troop;
 
-public class Production {
+public class Production implements java.io.Serializable {
 
+	private static final long serialVersionUID = 599383154148207372L;
 	private int totalTime;
 	private int timeRemaining;
 	private int cost;
+	private String name;
 	private Troop troop;
 	private boolean isCastle = false;
 	private boolean isFinish = false;
@@ -16,6 +18,7 @@ public class Production {
 		this.timeRemaining = troop.getTimeProduction();
 		this.troop = troop;
 		this.cost = troop.getCostProduction();
+		this.name = troop.toString();
 	}
 
 	public Production(int duration, int cost) {
@@ -23,6 +26,7 @@ public class Production {
 		this.totalTime = duration;
 		this.timeRemaining = duration;
 		this.cost = cost;
+		this.name = Main.language.getProperty("castle");
 	}
 	
 	public void tick() {
@@ -31,38 +35,18 @@ public class Production {
 			this.isFinish = true;
 		}
 	}
-
-	public boolean isFinish() {
-		return isFinish;
-	}
-
-	public Troop getTroop() {
-		return troop;
-	}
-
-	public int getTimeRemaining() {
-		return timeRemaining;
-	}
-	
-	public int getTotalTime() {
-		return totalTime;
-	}
-	
-	public String getName() {
-		if (isCastle) {
-			return "Chateau";
-		} else {			
-			return troop.toString();
-		}
-	}
-
-	public boolean isCastle() {
-		return isCastle;
-	}
-
-	public int getCost() {
-		return cost;
-	}
 	
 	
+	
+	/* GETTERS AND SETTERS */
+	
+	
+
+	public boolean isFinish() {return isFinish;}
+	public Troop getTroop() {return troop;}
+	public int getTimeRemaining() {return timeRemaining;}
+	public int getTotalTime() {return totalTime;}
+	public String getName() {return name;}
+	public boolean isCastle() {return isCastle;}
+	public int getCost() {return cost;}	
 }

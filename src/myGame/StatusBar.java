@@ -13,6 +13,7 @@ import troop.Knight;
 import troop.Spearman;
 
 public class StatusBar {
+
 	private Text textCastleName = new Text();
 	private Text textCastleOwner = new Text();
 	private Text textCastleLevel = new Text();
@@ -29,16 +30,20 @@ public class StatusBar {
 	private GridPane statsCastle = new GridPane();
 	private GridPane statsTroops = new GridPane();
 	private GridPane statsProduction = new GridPane();
+	private GridPane loadSavePanel = new GridPane();
     
-	private Button addSpearmanButton = new Button("+");
-	private Button addKnightButton = new Button("+");
-	private Button addCatapultButton = new Button("+");
-	private Button addLevelButton = new Button("+");
+	private Button addSpearmanButton = new Button(Main.language.getProperty("addButton"));
+	private Button addKnightButton = new Button(Main.language.getProperty("addButton"));
+	private Button addCatapultButton = new Button(Main.language.getProperty("addButton"));
+	private Button addLevelButton = new Button(Main.language.getProperty("addButton"));
 	private Button attackButton = new Button(Main.language.getProperty("statusBarSendButton"));
 	private Button removeLastProductionButton = new Button("-");
 	private Button removeAllProductionButton = new Button(Main.language.getProperty("statusBarRemoveProductions"));
 	
 	private PopupAttack popupAttack;
+	
+	public boolean askForSave = false;
+	public boolean askForLoad = false;
 	
 	/**
 	 * Not sure what this warning was about, I searched on the Internet but
@@ -50,16 +55,19 @@ public class StatusBar {
 		statusBar.getStyleClass().add("statusBar");
 		statusBar.relocate(0, Settings.SCENE_HEIGHT - Settings.STATUS_BAR_HEIGHT);
 		statusBar.setPrefSize(Settings.SCENE_WIDTH * 1.1f, Settings.STATUS_BAR_HEIGHT * 1.1f);
+		//statusBar.setGridLinesVisible(true);
 		
-		statusBar.getColumnConstraints().add(new ColumnConstraints(700));
-		statusBar.getColumnConstraints().add(new ColumnConstraints(500));
-		statusBar.getColumnConstraints().add(new ColumnConstraints(500));
+		statusBar.getColumnConstraints().add(new ColumnConstraints(600));
+		statusBar.getColumnConstraints().add(new ColumnConstraints(400));
+		statusBar.getColumnConstraints().add(new ColumnConstraints(400));
+		statusBar.getColumnConstraints().add(new ColumnConstraints(300));
 		
 	    root.getChildren().add(statusBar);
 	    
 	    statusBar.add(statsCastle, 0, 0);
 	    statusBar.add(statsTroops, 1, 0);
 	    statusBar.add(statsProduction, 2, 0);
+	    statusBar.add(loadSavePanel, 3, 0);
 		
 	    textCastleName.getStyleClass().add("title");
 	    attackButton.getStyleClass().add("normal");
@@ -162,7 +170,6 @@ public class StatusBar {
 		
 		int index = 0;
 		for (Text text: textProductions) {
-			
 			text.getStyleClass().add("normal");
 			statsProduction.add(text, 0, index);
 			index++;
@@ -185,6 +192,18 @@ public class StatusBar {
 		statsProduction.add(removeAllProductionButton, 1, 1);
 		removeLastProductionButton.setVisible(false);
 		removeAllProductionButton.setVisible(false);
+		
+		Button saveButton = new Button(Main.language.getProperty("statusBarSave"));
+		Button loadButton = new Button(Main.language.getProperty("statusBarLoad"));
+		
+		saveButton.getStyleClass().add("normal");
+		loadButton.getStyleClass().add("normal");
+		
+		saveButton.setOnAction(value ->  {this.askForSave = true;});
+		loadButton.setOnAction(value ->  {this.askForLoad = true;});
+		
+		loadSavePanel.add(saveButton, 0, 0);
+		loadSavePanel.add(loadButton, 0, 1);
 
 	}
 	
@@ -206,7 +225,7 @@ public class StatusBar {
 		textCastleName.setText(Main.selectedCastle.getNickname());
 		textCastleName.setFill(Main.selectedCastle.getOwner().getColor());
 		if (Main.selectedCastle.getOwner().isNeutral()) {
-			textCastleOwner.setText(Main.language.getProperty("statusBarOwnership") + Main.language.getProperty("statusBarNoAmbition"));
+			textCastleOwner.setText(Main.language.getProperty("statusBarNoAmbition"));
 		} else {
 			textCastleOwner.setText(Main.language.getProperty("statusBarOwnership") + Main.selectedCastle.getOwner().toString());
 		}
@@ -214,9 +233,9 @@ public class StatusBar {
 		textCastleMoney.setText(Main.language.getProperty("treasury") + Integer.toString(Main.selectedCastle.getMoney()));
 		
 		//Troops Stats
-		textCastleSpear.setText(Main.language.getProperty("spear") + Integer.toString(Main.selectedCastle.getTroops(new Spearman()).size()));
-		textCastleKnight.setText(Main.language.getProperty("knight") + Integer.toString(Main.selectedCastle.getTroops(new Knight()).size()));
-		textCastleCatapult.setText(Main.language.getProperty("catapult") + Integer.toString(Main.selectedCastle.getTroops(new Catapult()).size()));
+		textCastleSpear.setText(Main.language.getProperty("spear") + Integer.toString(Main.selectedCastle.getTroops(Spearman.class).size()));
+		textCastleKnight.setText(Main.language.getProperty("knight") + Integer.toString(Main.selectedCastle.getTroops(Knight.class).size()));
+		textCastleCatapult.setText(Main.language.getProperty("catapult") + Integer.toString(Main.selectedCastle.getTroops(Catapult.class).size()));
 		textCastleTroopTotal.setText(Main.language.getProperty("total") + Integer.toString(Main.selectedCastle.getTroops().size()));
 		
 		//Production Stats

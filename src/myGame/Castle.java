@@ -18,8 +18,11 @@ import troop.Troop;
  * @version 1.0
  * @since   2019-12-23
  */
-public class Castle {
-	
+public class Castle implements java.io.Serializable{
+
+	private static final long serialVersionUID = -745739758419837966L;
+	private transient Pane layer;
+	private transient Rectangle shape;
 	private String nickname;
 	private Duke owner;
 	private int money;
@@ -27,13 +30,11 @@ public class Castle {
 	private List<Troop> troops = new ArrayList<>();
 	private List<Troop> troopsToDispatch = new ArrayList<>();
 	private Point location;
-	private Pane layer;
 	private List<Order> orders = new ArrayList<>();
 	private List<Production> productions = new ArrayList<>();
 	private Direction doorDirection;
 	private int numProductionUnit = 1;
 	private int numDispatchMax = 3;
-	private Rectangle shape = new Rectangle();
 	
 	public Castle(String nickname, Duke owner, int money, int level, List<Troop> troops, Point location, Pane layer, Direction doorDirection) {
 		this.nickname = nickname;
@@ -74,7 +75,6 @@ public class Castle {
 	 * 
 	 */
 	public void levelUp() {
-		/*If it's too long, just used very small levels*/
 		int cost = costToLevel();
 		int time = timeToLevel();
 		
@@ -140,7 +140,6 @@ public class Castle {
 		while (i3.hasNext()) {
 			Order order = i3.next();
 			if (order.getTroops().size() != 0) {
-				order.moveAll();
 			} else {
 				i3.remove();
 			}
@@ -169,6 +168,56 @@ public class Castle {
 			this.money -= troop.getCostProduction();
 			productions.add(new Production(troop));
 		}
+	}
+	
+	/**
+	 * Add a new order to the castle.
+	 * @param target	the castle the troops should move towards
+	 * @param troops	the troops concerned by the order
+	 */
+	public void addOrder(Castle target, List<Troop> troops) {
+		
+		Point pos;
+		Direction tmp;
+		int positionModifier = 0;
+		for (Troop troop:troops) {			
+			pos = this.location.copy();
+			// Place x and y at the center of the castle
+			pos.translate(Settings.CASTLES_SIZE / 2,  Settings.CASTLES_SIZE / 2);
+			// Move the unit toward the door
+			pos.translate(this.doorDirection.toPoint().scalar(Settings.CASTLES_SIZE / 2 + Settings.SOLDIER_SIZE));
+			
+			// The following code allows the troops to be spawn at slightly different places
+			// so that they doesn't superpose each others.
+			tmp = this.doorDirection.copy();
+			switch (positionModifier) {
+				case 0: tmp.turnClockwise();pos.translate(tmp.toPoint().scalar(Settings.SOLDIER_SIZE)); break;
+				case 1: tmp.turnCounterClockwise();pos.translate(tmp.toPoint().scalar(Settings.SOLDIER_SIZE)); break;
+				case 2: pos.translate(tmp.toPoint().scalar(Settings.SOLDIER_SIZE)); break;
+				default: break;
+			}
+			
+			positionModifier++;
+			if (positionModifier > 2) {positionModifier = 0;}
+			
+			troop.setLocation(pos);
+			drawTroop(troop);
+			troop.setCanMove(false);
+			this.troopsToDispatch.add(troop);
+		}
+		
+		/* If the order already exists, just append those new troops to it 
+		for (Order order:orders) {
+			if (order.getTarget() == target) {
+				order.addTroops(troops);
+				this.troops.removeAll(troops);
+				return;
+			}
+		}*/
+		
+		/* Or else, create a new order and remove all those troops from the castle */
+		this.orders.add(new Order(this, target, troops));
+		this.troops.removeAll(troops);
 	}
 	
 	/**
@@ -226,55 +275,7 @@ public class Castle {
 	}
 	
 	
-	/**
-	 * Add a new order to the castle.
-	 * @param target	the castle the troops should move towards
-	 * @param troops	the troops concerned by the order
-	 */
-	public void addOrder(Castle target, List<Troop> troops) {
-		
-		Point pos;
-		Direction tmp;
-		int positionModifier = 0;
-		for (Troop troop:troops) {			
-			pos = this.location.copy();
-			// Place x and y at the center of the castle
-			pos.translate(Settings.CASTLES_SIZE / 2,  Settings.CASTLES_SIZE / 2);
-			// Move the unit toward the door
-			pos.translate(this.doorDirection.toPoint().scalar(Settings.CASTLES_SIZE / 2 + 1));
-			
-			// The following code allows the troops to be spawn at slightly different places
-			// so that they doesn't superpose each others.
-			tmp = this.doorDirection.copy();
-			switch (positionModifier) {
-				case 0: tmp.turnClockwise();pos.translate(tmp); break;
-				case 1: tmp.turnCounterClockwise();pos.translate(tmp); break;
-				case 2: pos.translate(tmp); break;
-				default: break;
-			}
-			
-			positionModifier++;
-			if (positionModifier > 2) {positionModifier = 0;}
-			
-			troop.setLocation(pos);
-			drawTroop(troop);
-			troop.setCanMove(false);
-			this.troopsToDispatch.add(troop);
-		}
-		
-		/* If the order already exists, just append those new troops to it */
-		for (Order order:orders) {
-			if (order.getTarget() == target) {
-				order.addTroops(troops);
-				this.troops.removeAll(troops);
-				return;
-			}
-		}
-		
-		/* Or else, create a new order and remove all those troops from the castle */
-		this.orders.add(new Order(this, target, troops));
-		this.troops.removeAll(troops);
-	}
+	
 	
 	
 	/**
@@ -282,6 +283,7 @@ public class Castle {
 	 */
 	public void drawSelf() {
 		Point pos = new Point(Main.gridStart.x + this.location.x * Main.gridSize, Main.gridStart.y + this.location.y * Main.gridSize);
+		this.shape = new Rectangle();
 		this.shape.setX(pos.x);
 		this.shape.setY(pos.y);
 		this.shape.setWidth(Main.gridSize * Settings.CASTLES_SIZE);
@@ -319,6 +321,21 @@ public class Castle {
 		shape.setVisible(false);
 		this.layer.getChildren().add(shape);
 		troop.setShape(shape);
+		
+	}
+	
+	public void drawAllOrders() {
+		for (Order order:orders) {
+			for (Troop troop:order.getTroops()) {
+				Rectangle shape = new Rectangle(Main.gridSize * Settings.SOLDIER_SIZE, Main.gridSize * Settings.SOLDIER_SIZE);
+				shape.setFill(order.getSender().getColor());
+				shape.setVisible(troop.canMove());
+				troop.setShape(shape);
+				this.layer.getChildren().add(shape);
+				troop.drawSelf();
+			}
+		}
+		
 	}
 	
 	public void undrawTroop(Troop troop) {
@@ -351,13 +368,9 @@ public class Castle {
 	 * @param c	the type of troop you want to get
 	 * @return 	troops but only those of a certain type.
 	 */
-	public List<Troop> getTroops(Object c) {
+	public List<Troop> getTroops(Class<?> c) {
 		List<Troop> result = new ArrayList<>();
-		for (Troop troop: troops) {
-			if (troop.getClass() == c.getClass()) {
-				result.add(troop);
-			}
-		}
+		for (Troop troop: troops) if (troop.getClass() == c) result.add(troop);
 		return result;
 	}
 
@@ -371,9 +384,7 @@ public class Castle {
 	 * @return		the index nth production
 	 */
 	public Production getProduction(int index) {
-		if (index <= productions.size() - 1) {
-			return productions.get(index);
-		}
+		if (index <= productions.size() - 1) return productions.get(index);
 		return null;		
 	}
 
@@ -386,10 +397,16 @@ public class Castle {
 	 * @return		the index nth order
 	 */
 	public Order getOrder(int index) {
-		if (index <= orders.size() - 1) {
-			return orders.get(index);
-		}
+		if (index <= orders.size() - 1) return orders.get(index);
 		return null;		
+	}
+
+	public void setLayer(Pane layer) {
+		this.layer = layer;
+	}
+
+	public Pane getLayer() {
+		return layer;
 	}
 
 		

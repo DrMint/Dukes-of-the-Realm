@@ -14,7 +14,7 @@ import troop.Catapult;
 import troop.Knight;
 import troop.Spearman;
 
-public class PopupAttack extends Popup{
+public class PopupAttack extends Popup {
 
 	private Text textOstsCastleName[] = new Text[Settings.NUM_OSTS_SHOWN];
 	private Text textOstsSpear[] = new Text[Settings.NUM_OSTS_SHOWN];
@@ -43,7 +43,7 @@ public class PopupAttack extends Popup{
 		pane.setTranslateX((Settings.SCENE_WIDTH - Settings.POPUP_WIDTH) / 2);
 		pane.setTranslateY(((Settings.SCENE_HEIGHT - Settings.STATUS_BAR_HEIGHT) - Settings.POPUP_HEIGHT) / 2);
 		
-		Button buttonExitPopup = new Button("X");
+		Button buttonExitPopup = new Button(Main.language.getProperty("closeButton"));
 		buttonExitPopup.setOnAction(value ->  {
 			hide();
         });
@@ -101,9 +101,9 @@ public class PopupAttack extends Popup{
 			if (tmp != null) {
 				textOstsCastleName[i].setFill(tmp.getTarget().getOwner().getColor());
 				textOstsCastleName[i].setText(tmp.getTarget().getNickname());
-				textOstsSpear[i].setText(Main.language.getProperty("spearMini") + tmp.getTroops(new Spearman()).size());
-				textOstsKnight[i].setText(Main.language.getProperty("knightMini") + tmp.getTroops(new Knight()).size());
-				textOstsCatapult[i].setText(Main.language.getProperty("catapultMini") + tmp.getTroops(new Catapult()).size());
+				textOstsSpear[i].setText(Main.language.getProperty("spearMini") + tmp.getTroops(Spearman.class).size());
+				textOstsKnight[i].setText(Main.language.getProperty("knightMini") + tmp.getTroops(Knight.class).size());
+				textOstsCatapult[i].setText(Main.language.getProperty("catapultMini") + tmp.getTroops(Catapult.class).size());
 			} else {
 				textOstsCastleName[i].setText("");
 				textOstsSpear[i].setText("");
@@ -114,7 +114,5 @@ public class PopupAttack extends Popup{
 		
 	}
 
-	public PopupTroop getPopupTroop() {
-		return popupTroop;
-	}
+	public PopupTroop getPopupTroop() {return popupTroop;}
 }

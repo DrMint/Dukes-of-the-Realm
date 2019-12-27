@@ -10,8 +10,9 @@ import java.util.function.Predicate;
  * @version 1.0
  * @since 2019-12-23
  */
-public class Point {
+public class Point implements java.io.Serializable {
 	
+	private static final long serialVersionUID = 9198812747851892592L;
 	public int x;
 	public int y;
 	

@@ -30,17 +30,16 @@ public abstract class Popup {
 		pane.setVisible(isVisible);
 	}
 	
+	
 	/**
 	 * Refresh all the necessary the information
 	 */
 	public abstract void refresh();
 	
-	public boolean isVisible() {
-		return isVisible;
-	}
+	
+	/* GETTERS AND SETTERS */
 
-	public boolean needRefresh() {
-		return needRefresh;
-	}
+	public boolean isVisible() {return isVisible;}
+	public boolean needRefresh() {return needRefresh;}
 	
 }

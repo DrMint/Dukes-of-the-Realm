@@ -1,14 +1,15 @@
 package troop;
 
+import myGame.Main;
+
 public class Spearman extends Troop {
 	
 	public Spearman() {
 		super(100, 5, 2, 1, 1);
 	}
 	
-	@Override
 	public String toString() {
-		return "Spearman";
+		return Main.language.getProperty("spear");
 	}
 	
 }

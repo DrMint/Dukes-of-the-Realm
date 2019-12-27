@@ -5,12 +5,6 @@
  * 
  * Ecrire la javaDoc
  * 
- * Les différents types de soldats doivent être aisément identifiable.
- * 
- * Il sera possible de sauvegarder une partie et de charger une sauvegarde depuis le disque (voir ObjectOutputStream et ObjectInputStream).
- * 
- * Il peut y avoir aucune IA
- * 
  * Pour avoir + :
  * 
  * Les joueurs adverses devront disposer d’une intelligence artificielle minimaliste les faisant agir.
@@ -22,14 +16,20 @@
 
 package myGame;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -68,22 +68,17 @@ public class Main extends Application {
 	 */
 	static public int gridSize;
 
-	public List<Duke> dukes = new ArrayList<>();
 	static public List<Castle> castles = new ArrayList<>();
 	static public Castle selectedCastle;
 	static public Properties language = new Properties();
 
+	private List<Duke> dukes = new ArrayList<>();
+	
 	private Pane playfieldLayer = new Pane();
 	private Text textPause = new Text();
+	private Text textEnd = new Text();
 	private Group root = new Group();
 	private Scene scene = new Scene(root, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT);
-
-	private boolean isPaused = false;
-	private boolean hasPressPause = false;
-
-	private Date turnStart;
-	private Date turnEnd;
-	private int turnCounter = -1;
 
 	private Input input = new Input(scene);
 	private AnimationTimer gameLoop;
@@ -96,11 +91,15 @@ public class Main extends Application {
 
 	@SuppressWarnings("unlikely-arg-type")
 	@Override
-	public void start(Stage primaryStage) throws IOException {
+	public void start(Stage primaryStage) throws IOException, InstantiationException, IllegalAccessException {
 		
 		/* Import the proper language properties file according to Settings.LANGUAGE and COUNTRY */
         InputStream resourceStream = Main.class.getResourceAsStream(
-        		"/languages/MessagesBundle_" + Settings.LANGUAGE + "_" + Settings.COUNTRY + ".properties");
+        		"/languages/" + Settings.LANGUAGE + "_" + Settings.COUNTRY + ".properties");
+		language.load(resourceStream);
+		
+		/* Also load global.properties regardless of the language */
+		resourceStream = Main.class.getResourceAsStream("/languages/global.properties");
 		language.load(resourceStream);
 
 		/* Prepare the scene.
@@ -225,8 +224,8 @@ public class Main extends Application {
 
 		Point selectedPoint;
 		List<Troop> defaultTroop = new ArrayList<>();
-		for (Troop troop : Settings.PLAYER_DEFAULT_TROOP) {
-			defaultTroop.add(troop);
+		for (Class<?> c : Settings.PLAYER_DEFAULT_TROOP) {
+			defaultTroop.add((Troop) c.newInstance());
 		}
 
 		Direction doorDirection;
@@ -269,18 +268,23 @@ public class Main extends Application {
 		
 		
 		// DEBUG: Cheat MAXIMUM
-		for (int i = 0; i< 30; i++) {
+		
+		/*
+		for (int i = 0; i < 50; i++) {
 			castles.get(0).addTroop(new Catapult());
 			castles.get(0).addTroop(new Knight());
 			castles.get(0).addTroop(new Spearman());
 			castles.get(0).setMoney(1000);
 		}
-		
+		*/
 		/*
+		
 		// DEBUG: Launch order in all direction
 		for (Castle castle:castles) {
 			List<Troop> tmp = new ArrayList<>();
-			tmp.add(castles.get(0).getTroops(new Catapult()).get(0));
+			tmp.add(castles.get(0).getTroops(Catapult.class).get(0));
+			tmp.add(castles.get(0).getTroops(Knight.class).get(0));
+			tmp.add(castles.get(0).getTroops(Spearman.class).get(0));
 			castles.get(0).addOrder(castle, tmp);
 		}
 		*/
@@ -299,32 +303,76 @@ public class Main extends Application {
 		textPause.setY(Settings.SCENE_HEIGHT / 2 - 15);
 		textPause.setVisible(false);
 		root.getChildren().add(textPause);
+		
+		/* Add ending text */
+		textEnd.setText("");
+		textEnd.getStyleClass().add("pause");
+		textEnd.setX(Settings.SCENE_WIDTH / 2 - 112);
+		textEnd.setY(Settings.SCENE_HEIGHT / 2 - 15);
+		textEnd.setVisible(false);
+		root.getChildren().add(textEnd);
 
 		gameLoop = new AnimationTimer() {
+			
+			private int spearFrequency = Settings.NUM_ANIMATION_SUBDIVISION / new Spearman().getSpeed();
+			private int knightFrequency = Settings.NUM_ANIMATION_SUBDIVISION / new Knight().getSpeed();
+			private int catapultFrequency = Settings.NUM_ANIMATION_SUBDIVISION / new Catapult().getSpeed();
+			
+			private Date turnStart = new Date();
+			private Date turnEnd;
+			private int animationTimeSubdivision = 0;
+			
+			private boolean isPaused = false;
+			private boolean hasPressPause = false;
+			
 			@Override
 			public void handle(long now) {
 
 				/* If the game isn't pause, sends ticks to all the castles and moves the orders */
 				if (!isPaused && !statusBar.getPopupAttack().isVisible()) {
-					if (turnCounter == -1) {
-						turnCounter++;
+					turnEnd = new Date();
+					int timeElapsed = (int) ((turnEnd.getTime() - turnStart.getTime()));
+					if (timeElapsed >= Settings.TURN_DURATION) {
 						turnStart = new Date();
-					} else {
-						turnEnd = new Date();
-						int timeElapsed = (int) ((turnEnd.getTime() - turnStart.getTime()));
-						if (timeElapsed >= Settings.TURN_DURATION) {
-							turnCounter++;
-							turnStart = new Date();
-							statusBar.refreshStatusBar();
-							for (Castle castle : castles) {
-								castle.tick();
-								for (Castle c : castles) {
-									for (Order o : c.getOrders()) {
-										o.tick();
-									}
-								}
+						if (animationTimeSubdivision < Settings.NUM_ANIMATION_SUBDIVISION) {
+							//System.out.print("Throttling " + animationTimeSubdivision + "\n");
+							for (int i = 0; i < Settings.NUM_ANIMATION_SUBDIVISION - animationTimeSubdivision; i++) {
+								animationMove();
 							}
 						}
+						animationTimeSubdivision = 0;
+						statusBar.refreshStatusBar();
+						for (Castle castle : castles) {
+							castle.tick();
+							for (Order order : castle.getOrders()) order.tick();
+						}
+						
+						Iterator<Duke> i = dukes.iterator();
+						while (i.hasNext()) {
+							Duke duke = i.next();
+							if (getCastlesFromDuke(duke).size() == 0) {
+								if (duke.isPlayer()) gameOver(false);
+								i.remove();
+							} else {
+								duke.tick();
+							}
+						}
+						
+						if (dukes.size() <= 1) gameOver(true);
+						
+						if (statusBar.askForLoad) {
+							statusBar.askForLoad = false;
+							load();
+						}
+						if (statusBar.askForSave) {
+							statusBar.askForSave = false; 
+							save();
+						}
+						
+					/* If we reached a subdivision of a turn for animation purposes */
+					} else if (timeElapsed >= Settings.ANIMATION_SUBDIVISION * animationTimeSubdivision) {
+						animationMove();
+						animationTimeSubdivision++;
 					}
 				}
 
@@ -340,6 +388,33 @@ public class Main extends Application {
 				}
 
 				processInput(input, now);
+				
+			}
+			
+			private void animationMove() {
+				if ((animationTimeSubdivision + 1) % spearFrequency == 0) {
+					for (Castle c : castles) {
+						for (Order o : c.getOrders()) {
+							o.moveAll(Spearman.class);
+						}
+					}
+				}
+				
+				if ((animationTimeSubdivision + 1) % knightFrequency == 0) {
+					for (Castle c : castles) {
+						for (Order o : c.getOrders()) {
+							o.moveAll(Knight.class);
+						}
+					}
+				}
+				
+				if ((animationTimeSubdivision + 1) % catapultFrequency == 0) {
+					for (Castle c : castles) {
+						for (Order o : c.getOrders()) {
+							o.moveAll(Catapult.class);
+						}
+					}
+				}
 			}
 
 			private void processInput(Input input, long now) {
@@ -395,6 +470,18 @@ public class Main extends Application {
 		}
 		return null;
 	}
+	
+	
+	/**
+	 * Returns the list of all castles owned by a duke given in parameter.
+	 * @param duke the duke that own the castle
+	 * @return the list of all castles owned by the duke
+	 */
+	static public List<Castle> getCastlesFromDuke(Duke duke) {
+		List<Castle> result = new ArrayList<>();
+		for (Castle castle:castles) if (castle.getOwner() == duke) result.add(castle);
+		return result;
+	}
 
 	/**
 	 * Search an element in a list and returns it.
@@ -405,11 +492,7 @@ public class Main extends Application {
 	 */
 	@SuppressWarnings("rawtypes")
 	public static Object getElemInList(List list, Object target) {
-		for (Object o : list) {
-			if (target.equals(o)) {
-				return o;
-			}
-		}
+		for (Object o : list) if (target.equals(o)) return o;
 		return null;
 	}
 
@@ -436,20 +519,100 @@ public class Main extends Application {
 	 * @param max higher range
 	 * @return a random integer
 	 */
-	public static int getRandomIntegerBetweenRange(double min, double max) {
-		max--;
-		double x = (int) (Math.random() * ((max - min) + 1)) + min;
-		return (int) x;
+	public static int getRandomIntegerBetweenRange(int min, int max) {
+		return (int) ((Math.random() * ((max - 1 - min) + 1)) + min);
 
 	}
-
+	
 	/**
-	 * Getter for isPaused
-	 * 
-	 * @return value of isPaused
+	 * @return a random boolean
 	 */
-	public boolean isPaused() {
-		return isPaused;
+	public static boolean getRandomBoolean() {
+		return Math.random() >= 0.5;
 	}
-
+	
+	
+	public void gameOver(boolean win) {
+		if (win) {
+			textEnd.setText("Win");
+		} else {
+			textEnd.setText("Lose");
+		}
+		
+		textEnd.setVisible(true);
+		gameLoop.stop();
+	}
+	
+	public void save() {
+		// create a new file with an ObjectOutputStream
+		FileOutputStream out;
+		ObjectOutputStream oout;
+		try {
+			
+			out = new FileOutputStream("last_save.txt");
+			try {
+				oout = new ObjectOutputStream(out);
+				
+		        // write something in the file
+				oout.writeObject(selectedCastle);
+		        oout.writeObject(castles);
+		        oout.writeObject(dukes);
+		        
+		        // close the stream
+		        oout.close();
+				
+			} catch (IOException e) {
+				System.out.print("IOException");
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		} catch (FileNotFoundException e) {
+			System.out.print("FileNotFoundException");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void load() {
+		// create an ObjectInputStream for the file we created before
+        ObjectInputStream ois;
+		try {
+			
+			ois = new ObjectInputStream(new FileInputStream("last_save.txt"));
+			try {
+				
+				this.playfieldLayer.getChildren().clear();
+				
+				selectedCastle = (Castle) ois.readObject();
+				castles = (List<Castle>) ois.readObject();
+				dukes = (List<Duke>) ois.readObject();
+		        // close the stream
+		        ois.close();
+		        
+		        for (Castle castle:castles) {
+		        	castle.setLayer(playfieldLayer);
+		        	castle.drawSelf();
+		        	castle.drawAllOrders();
+		        }
+		        
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
 }
