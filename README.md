@@ -130,4 +130,4 @@ Many more can be found in this file. You can read the complete list in the Javad
 ### Currently known bugs or limitation
 - It is not currently possible to resize the game window after launch.
 - Castles are placed at random with a certain distance of each other. Because of the way this is implemented, this process is calculated in `O(x * y)` for a grid of size `x * y`.
-- This is a bug when the turn duration is set to low. The thing is, when the computer isn't able to keep up with the game, some outgoing troops start to freeze. They simply stop moving.
+- There is a bug when the turn duration is set too low. The thing is, when the computer isn't able to keep up with the game, some outgoing troops stop moving for a while, then start moving again when less troops are shown on the screen. This only happens when they are too many troops moving and the turn duration is somewhere near 40ms (normally it is in between 150 and 300).
