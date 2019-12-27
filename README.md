@@ -14,6 +14,8 @@ The game ends once all castles are overruled by a single duke, and no other movi
 In order to compile this program, you will need the `JRE System Librairy`.
 The Java Build Path must include `Dukes-of-the-Realm/resources` and `Dukes-of-the-Realm/src`.
 
+The resources are encoded in UTF-8. In order to use them currently, your IDE must recodes them in this format. In Eclipse for example, this can be done in Project -> Properties -> Resource -> Text file encoding -> Other -> UTF-8.
+
 ### Documentation
 In order to generate the Javadoc, you will need to add this option:
 `-classpath "[JRE installation folder]\lib\ext\jfxrt.jar"`
