@@ -6,7 +6,7 @@ public class Production implements java.io.Serializable {
 
 	private static final long serialVersionUID = 599383154148207372L;
 	private int totalTime;
-	private int timeRemaining;
+	private int timeElasped;
 	private int cost;
 	private String name;
 	private Troop troop;
@@ -15,7 +15,7 @@ public class Production implements java.io.Serializable {
 
 	public Production(Troop troop) {
 		this.totalTime = troop.getTimeProduction();
-		this.timeRemaining = troop.getTimeProduction();
+		this.timeElasped = 0;
 		this.troop = troop;
 		this.cost = troop.getCostProduction();
 		this.name = troop.toString();
@@ -24,14 +24,14 @@ public class Production implements java.io.Serializable {
 	public Production(int duration, int cost) {
 		this.isCastle = true;
 		this.totalTime = duration;
-		this.timeRemaining = duration;
+		this.timeElasped = 0;
 		this.cost = cost;
 		this.name = Main.language.getProperty("castle");
 	}
 	
 	public void tick() {
-		timeRemaining--;
-		if (timeRemaining == 0) {
+		timeElasped++;
+		if (timeElasped == totalTime) {
 			this.isFinish = true;
 		}
 	}
@@ -44,7 +44,7 @@ public class Production implements java.io.Serializable {
 
 	public boolean isFinish() {return isFinish;}
 	public Troop getTroop() {return troop;}
-	public int getTimeRemaining() {return timeRemaining;}
+	public int getTimeElasped() {return timeElasped;}
 	public int getTotalTime() {return totalTime;}
 	public String getName() {return name;}
 	public boolean isCastle() {return isCastle;}

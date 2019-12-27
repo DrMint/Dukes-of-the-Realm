@@ -1,7 +1,6 @@
 package myGame;
 
 import javafx.geometry.Insets;
-import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
@@ -42,19 +41,24 @@ public class StatusBar {
 	
 	private PopupAttack popupAttack;
 	
-	public boolean askForSave = false;
-	public boolean askForLoad = false;
+	private boolean askForSave = false;
+	private boolean askForLoad = false;
 	
 	/**
 	 * Not sure what this warning was about, I searched on the Internet but
 	 * all example used it in a similar way as me.
 	 */
+
 	@SuppressWarnings("static-access")
-	StatusBar(Group root) {
+	
+	/**
+	 * @param root
+	 */
+	StatusBar() {
 
 		statusBar.getStyleClass().add("statusBar");
-		statusBar.relocate(0, Settings.SCENE_HEIGHT - Settings.STATUS_BAR_HEIGHT);
-		statusBar.setPrefSize(Settings.SCENE_WIDTH * 1.1f, Settings.STATUS_BAR_HEIGHT * 1.1f);
+		statusBar.relocate(0, Settings.WINDOW_HEIGHT - Settings.STATUS_BAR_HEIGHT);
+		statusBar.setPrefSize(Settings.WINDOW_WIDTH * 1.1f, Settings.STATUS_BAR_HEIGHT * 1.1f);
 		//statusBar.setGridLinesVisible(true);
 		
 		statusBar.getColumnConstraints().add(new ColumnConstraints(600));
@@ -62,7 +66,7 @@ public class StatusBar {
 		statusBar.getColumnConstraints().add(new ColumnConstraints(400));
 		statusBar.getColumnConstraints().add(new ColumnConstraints(300));
 		
-	    root.getChildren().add(statusBar);
+	    Main.root.getChildren().add(statusBar);
 	    
 	    statusBar.add(statsCastle, 0, 0);
 	    statusBar.add(statsTroops, 1, 0);
@@ -87,7 +91,7 @@ public class StatusBar {
 		
 		addLevelButton.setOnAction(value ->  {
 			Main.selectedCastle.levelUp();
-        	refreshStatusBar();
+        	refresh();
         });
 		
 		addLevelButton.setTooltip(new Tooltip(""));
@@ -101,10 +105,9 @@ public class StatusBar {
 		
 		statsCastle.setMargin(textCastleOwner, new Insets(0,0,20,0));
 		
-		popupAttack = new PopupAttack(root);
+		popupAttack = new PopupAttack();
 		attackButton.setOnAction(value ->  {
-        	popupAttack.show();
-        	popupAttack.refresh();
+        	attackButtonClicked();
         });
 		
 		//Troops Stats
@@ -143,20 +146,9 @@ public class StatusBar {
         
         statsTroops.getColumnConstraints().add(new ColumnConstraints(150));
 
-        addSpearmanButton.setOnAction(value ->  {
-        	Main.selectedCastle.addProduction(new Spearman());
-        	refreshStatusBar();
-        });
-
-        addKnightButton.setOnAction(value ->  {
-        	Main.selectedCastle.addProduction(new Knight());
-        	refreshStatusBar();
-        });
-
-        addCatapultButton.setOnAction(value ->  {
-        	Main.selectedCastle.addProduction(new Catapult());
-        	refreshStatusBar();
-        });
+        addSpearmanButton.setOnAction(value ->  {addSpearmanButtonClicked();});
+        addKnightButton.setOnAction(value ->  {addKnightButtonClicked();});
+        addCatapultButton.setOnAction(value ->  {addCatapultButtonClicked();});
 		
 		statsTroops.add(addSpearmanButton, 1, 0);
 		statsTroops.add(addKnightButton, 1, 1);
@@ -182,10 +174,12 @@ public class StatusBar {
 		
 		removeLastProductionButton.setOnAction(value ->  {
         	Main.selectedCastle.cancelProduction();
+        	refresh();
         });
 		
 		removeAllProductionButton.setOnAction(value ->  {
         	Main.selectedCastle.cancelAllProduction();
+        	refresh();
         });
 		
 		statsProduction.add(removeLastProductionButton, 1, 0);
@@ -208,9 +202,10 @@ public class StatusBar {
 	}
 	
 	
-	/* Refresh all the content of the Text element in the statusBar.
-	 * All the information is regarding the castle: selectedCastle.*/
-	public void refreshStatusBar() {
+	/**
+	 * Refresh all the content displayed in the statusBar.
+	 */
+	public void refresh() {
 		
 		/* Show more information if the castle is owned by the player */
 		boolean bool = Main.selectedCastle.getOwner().isPlayer();
@@ -245,7 +240,7 @@ public class StatusBar {
 			tmp = Main.selectedCastle.getProduction(index);
 			text.setText("");
 			if (tmp != null) {
-				text.setText(tmp.getName() + " (" + (tmp.getTotalTime() - tmp.getTimeRemaining()) + "/" + tmp.getTotalTime() + ")");
+				text.setText(tmp.getName() + " (" + tmp.getTimeElasped() + "/" + tmp.getTotalTime() + ")");
 			}
 			index++;
 		}
@@ -269,10 +264,33 @@ public class StatusBar {
 				"\n" + Main.language.getProperty("time") + Main.selectedCastle.timeToLevel());;
 		
 	}
-
-	public PopupAttack getPopupAttack() {
-		return popupAttack;
+	
+	public void addSpearmanButtonClicked() {
+		Main.selectedCastle.addProduction(Spearman.class);
+    	refresh();
 	}
 	
+	public void addKnightButtonClicked() {
+		Main.selectedCastle.addProduction(Knight.class);
+    	refresh();
+	}
+	
+	public void addCatapultButtonClicked() {
+		Main.selectedCastle.addProduction(Catapult.class);
+    	refresh();
+	}
+
+	public void attackButtonClicked() {
+		popupAttack.show();
+    	popupAttack.refresh();
+	}
+	
+	/* GETTERS AND SETTERS */
+	
+	public PopupAttack getPopupAttack() {return popupAttack;}
+	public boolean hasAskForSave() {return askForSave;}
+	public void askForSave(boolean askForSave) {this.askForSave = askForSave;}
+	public boolean hasAskForLoad() {return askForLoad;}
+	public void askForLoad(boolean askForLoad) {this.askForLoad = askForLoad;}
 	
 }

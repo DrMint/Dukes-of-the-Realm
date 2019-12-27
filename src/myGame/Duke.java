@@ -2,17 +2,43 @@ package myGame;
 
 import javafx.scene.paint.Color;
 
+/**
+ * 
+ * @author Thomas Barillot and Maël Bouquinet
+ * @version 1.0
+ * @since   2019-12-23
+ *
+ */
 public class Duke implements java.io.Serializable {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 4031712221322708268L;
+	
+	/**
+	 * The name of the duke.
+	 */
 	private String name;
+	
+	/**
+	 * The duke color. It is a javafx.scene.paint.Color.toString()
+	 */
 	private String color;
+	
+	/**
+	 * Is the duke the player?
+	 */
 	private boolean isPlayer;
+	
+	/**
+	 * Is the duke a neutral duke?
+	 */
 	private boolean isNeutral;
+	
+	/**
+	 * If this duke is controlled by an NPC, here it is.
+	 */
 	private Npc npc;
 
+	
 	public Duke(String name, Color color, boolean isPlayer) {
 		this.name = name;
 		this.color = color.toString();
@@ -29,8 +55,7 @@ public class Duke implements java.io.Serializable {
 	}
 	
 	/**
-	 * If the dukes is an NPC, this will make the NPC
-	 * do its thing, otherwise this will do nothing.
+	 * If it is controlled by an NPC, propagates the tick to its NPC
 	 */
 	public void tick() {
 		if (!isPlayer && !isNeutral) npc.tick();

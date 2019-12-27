@@ -5,12 +5,35 @@ import java.util.List;
 
 import troop.*;
 
+/**
+ * A way for Dukes to be controlled by someone else than the player.
+ * @author Thomas Barillot and Maël Bouquinet
+ * @version 1.0
+ * @since   2019-12-23
+ *
+ */
 public class Npc implements java.io.Serializable{
 
 	private static final long serialVersionUID = 8627611846432297083L;
+	
+	/**
+	 * The NPC will be controlling this duke.
+	 */
 	private Duke identity;
+	
+	/**
+	 * The number of turns before trying to create a new troop.
+	 */
 	private int timerCreateTroop;
+	
+	/**
+	 * The number of turns before trying to launch an attack.
+	 */
 	private int timerLaunchAttack;
+	
+	/**
+	 * The number of turns before trying to level up one of its castle.
+	 */
 	private int timerCastleLevel;
 	
 	public Npc(Duke identity) {
@@ -26,6 +49,9 @@ public class Npc implements java.io.Serializable{
 				(int) (Settings.NPC_TIMER_LEVELUP * Settings.NPC_TIMER_MIN), Settings.NPC_TIMER_LEVELUP);
 	}
 	
+	/**
+	 * 
+	 */
 	public void tick() {
 		List<Castle> castles = Main.getCastlesFromDuke(this.identity);
 		Castle myRandomCastle;
@@ -45,9 +71,9 @@ public class Npc implements java.io.Serializable{
 			
 			myRandomCastle = (Castle) Main.getRandomElemInList(castles);
 			switch(Main.getRandomIntegerBetweenRange(0, 3)) {
-				case 0: myRandomCastle.addProduction(new Spearman());
-				case 1: myRandomCastle.addProduction(new Knight());
-				case 2: myRandomCastle.addProduction(new Catapult());
+				case 0: myRandomCastle.addProduction(Spearman.class);
+				case 1: myRandomCastle.addProduction(Knight.class);
+				case 2: myRandomCastle.addProduction(Catapult.class);
 			}
 		}
 		

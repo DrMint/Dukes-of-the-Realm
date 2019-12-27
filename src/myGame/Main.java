@@ -1,19 +1,3 @@
-/*
- * TODO: 
- * 
- * Pour avoir 15 :
- * 
- * Ecrire la javaDoc
- * 
- * Pour avoir + :
- * 
- * Les joueurs adverses devront disposer d’une intelligence artificielle minimaliste les faisant agir.
- * On se satisfera totalement que les ducs adverses effectuent des actions aléatoires à intervalles réguliers.
- * 
- * Un château pourra augmenter le nombre de production simultanée qu’il peut effectuer en produisant une amélioration appelée caserne. 
- * 
- * */
-
 package myGame;
 
 import java.io.FileInputStream;
@@ -63,22 +47,43 @@ public class Main extends Application {
 	 * Top left point where the grid starts.
 	 */
 	static public Point gridStart = new Point();
+	
 	/**
-	 * The size in pixels of one grid cell.
+	 * The size of one grid cell (in pixels).
 	 */
 	static public int gridSize;
-
+	
+	/**
+	 * The list of all castles
+	 */
 	static public List<Castle> castles = new ArrayList<>();
+	
+	/**
+	 * The currently selected castle.
+	 */
 	static public Castle selectedCastle;
+	
+	/**
+	 * The currently used properties file.
+	 * This is a collection of strings used in the interface.
+	 */
 	static public Properties language = new Properties();
+	
+	/**
+	 * The Pane on which the game field is drawn.
+	 */
+	static public Pane pane = new Pane();
 
+	/**
+	 * The entire game surface on which everything is drawn.
+	 */
+	static public Group root = new Group();
+	
 	private List<Duke> dukes = new ArrayList<>();
 	
-	private Pane playfieldLayer = new Pane();
 	private Text textPause = new Text();
 	private Text textEnd = new Text();
-	private Group root = new Group();
-	private Scene scene = new Scene(root, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT);
+	private Scene scene = new Scene(root, Settings.WINDOW_WIDTH, Settings.WINDOW_HEIGHT);
 
 	private Input input = new Input(scene);
 	private AnimationTimer gameLoop;
@@ -89,13 +94,13 @@ public class Main extends Application {
 		launch(args);
 	}
 
-	@SuppressWarnings("unlikely-arg-type")
+	@SuppressWarnings({ "unlikely-arg-type", "unused" })
 	@Override
 	public void start(Stage primaryStage) throws IOException, InstantiationException, IllegalAccessException {
 		
 		/* Import the proper language properties file according to Settings.LANGUAGE and COUNTRY */
         InputStream resourceStream = Main.class.getResourceAsStream(
-        		"/languages/" + Settings.LANGUAGE + "_" + Settings.COUNTRY + ".properties");
+        		"/languages/" + Settings.LANGUAGE + ".properties");
 		language.load(resourceStream);
 		
 		/* Also load global.properties regardless of the language */
@@ -112,7 +117,7 @@ public class Main extends Application {
 				Castle tmp = getCastleFromPoint(p);
 				if (tmp != null && tmp != selectedCastle) {
 					selectedCastle = tmp;
-					statusBar.refreshStatusBar();
+					statusBar.refresh();
 				}
 			}
 		});
@@ -127,18 +132,18 @@ public class Main extends Application {
 		 * as possible without being stretch. There is currently a problem with some
 		 * grid size (ie: 20*10)
 		 */
-		float win_ratio = (float) (Settings.SCENE_WIDTH / (Settings.SCENE_HEIGHT - Settings.STATUS_BAR_HEIGHT));
+		float win_ratio = (float) (Settings.WINDOW_WIDTH / (Settings.WINDOW_HEIGHT - Settings.STATUS_BAR_HEIGHT));
 		float grid_ratio = (float) (Settings.GRID_WIDTH / Settings.GRID_HEIGHT);
 
 		if (win_ratio > grid_ratio) {
-			gridSize = (Settings.SCENE_HEIGHT - Settings.STATUS_BAR_HEIGHT) / Settings.GRID_HEIGHT;
-			gridStart.x = (Settings.SCENE_WIDTH - Settings.GRID_WIDTH * gridSize) / 2;
+			gridSize = (Settings.WINDOW_HEIGHT - Settings.STATUS_BAR_HEIGHT) / Settings.GRID_HEIGHT;
+			gridStart.x = (Settings.WINDOW_WIDTH - Settings.GRID_WIDTH * gridSize) / 2;
 			gridStart.y = 0;
 
 		} else {
-			gridSize = Settings.SCENE_WIDTH / Settings.GRID_WIDTH;
+			gridSize = Settings.WINDOW_WIDTH / Settings.GRID_WIDTH;
 			gridStart.x = 0;
-			gridStart.y = ((Settings.SCENE_HEIGHT - Settings.STATUS_BAR_HEIGHT) - Settings.GRID_HEIGHT * gridSize) / 2;
+			gridStart.y = ((Settings.WINDOW_HEIGHT - Settings.STATUS_BAR_HEIGHT) - Settings.GRID_HEIGHT * gridSize) / 2;
 		}
 
 		// Draw the grid by adding lines
@@ -160,7 +165,7 @@ public class Main extends Application {
 		}
 
 		// Create layers
-		root.getChildren().add(playfieldLayer);
+		root.getChildren().add(pane);
 
 		/* Create a list of Duke's names from a file called dukes.txt */
 		List<String> dukeNames = new ArrayList<>();
@@ -168,11 +173,6 @@ public class Main extends Application {
 			Path filePath = Paths.get("resources/names/dukes.txt");
 			dukeNames = Files.readAllLines(filePath, Charset.forName("UTF8"));
 		} catch (IOException e) {
-			dukeNames.add("France");
-			dukeNames.add("Germany");
-			dukeNames.add("Russia");
-			dukeNames.add("Spain");
-			dukeNames.add("Italy");
 			e.printStackTrace();
 		}
 
@@ -184,13 +184,17 @@ public class Main extends Application {
 		colorList.add(Color.PINK);
 		colorList.add(Color.BURLYWOOD);
 		colorList.add(Color.PURPLE);
+		colorList.add(Color.CHARTREUSE);
+		colorList.add(Color.CHOCOLATE);
+		colorList.add(Color.BROWN);
+		colorList.add(Color.AQUA);
 
 		/* Creates a list of Dukes + a random number of Neutral dukes */
 		String selectedName;
 		Color selectedColor;
-		int nbNeutral = getRandomIntegerBetweenRange(Settings.MAX_NEUTRAL, Settings.MAX_NEUTRAL);
-		for (int i = 0; i < Settings.NUM_DUKES + nbNeutral; i++) {
-			if (i < Settings.NUM_DUKES) {
+		int nbNeutral = getRandomIntegerBetweenRange(Settings.MAX_NEUTRAL / 2, Settings.MAX_NEUTRAL + 1);
+		for (int i = 0; i < Settings.NUM_NPC + 1 + nbNeutral; i++) {
+			if (i < Settings.NUM_NPC + 1) {
 				selectedColor = colorList.get(i % (colorList.size() - 1));
 				selectedName = (String) getRandomElemInList(dukeNames);
 				dukeNames.remove(selectedName);
@@ -227,6 +231,11 @@ public class Main extends Application {
 		for (Class<?> c : Settings.PLAYER_DEFAULT_TROOP) {
 			defaultTroop.add((Troop) c.newInstance());
 		}
+		
+		List<Troop> defaultNeutralTroop = new ArrayList<>();
+		for (Class<?> c : Settings.NEUTRAL_DEFAULT_TROOP) {
+			defaultNeutralTroop.add((Troop) c.newInstance());
+		}
 
 		Direction doorDirection;
 		for (Duke duke : dukes) {
@@ -236,8 +245,7 @@ public class Main extends Application {
 			doorDirection = new Direction();
 			doorDirection.randomize();
 			
-			Castle c = new Castle(selectedName, duke, Settings.PLAYER_DEFAULT_MONEY, 1, defaultTroop, selectedPoint,
-					  playfieldLayer, doorDirection);
+			Castle c = new Castle(selectedName, duke, Settings.PLAYER_DEFAULT_MONEY, 1, defaultTroop, selectedPoint, doorDirection);
 			
 			c.drawSelf();
 			castles.add(c);
@@ -250,8 +258,9 @@ public class Main extends Application {
 			}
 			
 			if (duke.isNeutral()) {
-				c.setMoney(c.getMoney() + getRandomIntegerBetweenRange(0, Settings.NEUTRAL_MAX_MONEY));
-				c.setLevel(c.getLevel() + getRandomIntegerBetweenRange(0, Settings.NEUTRAL_MAX_LEVEL));
+				c.setMoney(getRandomIntegerBetweenRange(Settings.NEUTRAL_MAX_MONEY / 2, Settings.NEUTRAL_MAX_MONEY + 1));
+				c.setLevel(getRandomIntegerBetweenRange(1, Settings.NEUTRAL_MAX_LEVEL + 1));
+				c.addTroops(defaultNeutralTroop);
 				for (int i = 0; i <= c.getLevel() - 2; i++) {
 					switch (getRandomIntegerBetweenRange(0, 3)) {
 						case 0:	c.addTroop(new Spearman()); break;
@@ -267,50 +276,60 @@ public class Main extends Application {
 		
 		
 		
-		// DEBUG: Cheat MAXIMUM
+		
+		/* CHEATS */
+		
+		if (Settings.CHEAT_MONEY) castles.get(0).setMoney(100000);
+		
+		if (Settings.CHEAT_TROOPS || Settings.CHEAT_LAUNCH_ATTACK) {
+			for (int i = 0; i < 100; i++) {
+				castles.get(0).addTroop(new Catapult());
+				castles.get(0).addTroop(new Knight());
+				castles.get(0).addTroop(new Spearman());
+			}
+		}
+		
+		if (Settings.CHEAT_LAUNCH_ATTACK) {
+			for (Castle castle:castles) {
+				List<Troop> tmp = new ArrayList<>();
+				tmp.add(castles.get(0).getTroops(Catapult.class).get(0));
+				tmp.add(castles.get(0).getTroops(Knight.class).get(0));
+				tmp.add(castles.get(0).getTroops(Spearman.class).get(0));
+				castles.get(0).addOrder(castle, tmp);
+			}
+		}
 		
 		/*
-		for (int i = 0; i < 50; i++) {
-			castles.get(0).addTroop(new Catapult());
-			castles.get(0).addTroop(new Knight());
-			castles.get(0).addTroop(new Spearman());
-			castles.get(0).setMoney(1000);
-		}
+		
 		*/
 		/*
 		
 		// DEBUG: Launch order in all direction
-		for (Castle castle:castles) {
-			List<Troop> tmp = new ArrayList<>();
-			tmp.add(castles.get(0).getTroops(Catapult.class).get(0));
-			tmp.add(castles.get(0).getTroops(Knight.class).get(0));
-			tmp.add(castles.get(0).getTroops(Spearman.class).get(0));
-			castles.get(0).addOrder(castle, tmp);
-		}
+		
 		*/
 		
 
 
 		input.addListeners();
 
-		statusBar = new StatusBar(root);
-		statusBar.refreshStatusBar();
-
 		/* Add pause text */
 		textPause.setText("PAUSE");
 		textPause.getStyleClass().add("pause");
-		textPause.setX(Settings.SCENE_WIDTH / 2 - 112);
-		textPause.setY(Settings.SCENE_HEIGHT / 2 - 15);
+		textPause.setX(Settings.WINDOW_WIDTH / 2 - 112);
+		textPause.setY(Settings.WINDOW_HEIGHT / 2 - 15);
 		textPause.setVisible(false);
 		root.getChildren().add(textPause);
 		
 		/* Add ending text */
 		textEnd.setText("");
 		textEnd.getStyleClass().add("pause");
-		textEnd.setX(Settings.SCENE_WIDTH / 2 - 112);
-		textEnd.setY(Settings.SCENE_HEIGHT / 2 - 15);
+		textEnd.setX(Settings.WINDOW_WIDTH / 2 - 112);
+		textEnd.setY(Settings.WINDOW_HEIGHT / 2 - 15);
 		textEnd.setVisible(false);
 		root.getChildren().add(textEnd);
+		
+		statusBar = new StatusBar();
+		statusBar.refresh();
 
 		gameLoop = new AnimationTimer() {
 			
@@ -323,7 +342,6 @@ public class Main extends Application {
 			private int animationTimeSubdivision = 0;
 			
 			private boolean isPaused = false;
-			private boolean hasPressPause = false;
 			
 			@Override
 			public void handle(long now) {
@@ -334,25 +352,43 @@ public class Main extends Application {
 					int timeElapsed = (int) ((turnEnd.getTime() - turnStart.getTime()));
 					if (timeElapsed >= Settings.TURN_DURATION) {
 						turnStart = new Date();
+						
+						// If the game wasn't able to draw all animation subdivision in time, makes them move right now.
 						if (animationTimeSubdivision < Settings.NUM_ANIMATION_SUBDIVISION) {
-							//System.out.print("Throttling " + animationTimeSubdivision + "\n");
 							for (int i = 0; i < Settings.NUM_ANIMATION_SUBDIVISION - animationTimeSubdivision; i++) {
 								animationMove();
 							}
 						}
+						
 						animationTimeSubdivision = 0;
-						statusBar.refreshStatusBar();
+						
+						// Propagates the tick to all castles
 						for (Castle castle : castles) {
 							castle.tick();
 							for (Order order : castle.getOrders()) order.tick();
 						}
 						
+						statusBar.refresh();
+						
+						// If a duke no longer has any castle, delete it.
 						Iterator<Duke> i = dukes.iterator();
+						boolean hasStillTroops;
 						while (i.hasNext()) {
 							Duke duke = i.next();
 							if (getCastlesFromDuke(duke).size() == 0) {
-								if (duke.isPlayer()) gameOver(false);
-								i.remove();
+								hasStillTroops = false;
+								label_1: for (Castle castle : castles) {
+									for (Order order:castle.getOrders()) {
+										if (order.getSender() == duke) {
+											hasStillTroops = true;
+											break label_1;
+										}
+									}
+								}
+								if (!hasStillTroops) {
+									if (duke.isPlayer()) gameOver(false);
+									i.remove();
+								}
 							} else {
 								duke.tick();
 							}
@@ -360,12 +396,12 @@ public class Main extends Application {
 						
 						if (dukes.size() <= 1) gameOver(true);
 						
-						if (statusBar.askForLoad) {
-							statusBar.askForLoad = false;
+						if (statusBar.hasAskForLoad()) {
+							statusBar.askForLoad(false);
 							load();
 						}
-						if (statusBar.askForSave) {
-							statusBar.askForSave = false; 
+						if (statusBar.hasAskForLoad()) {
+							statusBar.askForSave(false); 
 							save();
 						}
 						
@@ -418,23 +454,157 @@ public class Main extends Application {
 			}
 
 			private void processInput(Input input, long now) {
+				
 				if (input.isExit()) {
 					Platform.exit();
 					System.exit(0);
+				} else if(input.isClose()) {
+					if (!statusBar.getPopupAttack().isVisible()) {
+						selectedCastle.cancelProduction();
+					} else if (!statusBar.getPopupAttack().getPopupTroop().isVisible()) {
+						statusBar.getPopupAttack().buttonExitPopup();
+					} else {
+						statusBar.getPopupAttack().getPopupTroop().buttonExitPopup();
+					}
+				} else if(input.isSave()) {
+					save();
+				} else if(input.isLoad()) {
+					load();
+				} else if (input.isLevelUp()) {
+					if (selectedCastle.getOwner().isPlayer() && !statusBar.getPopupAttack().isVisible()) {
+						selectedCastle.levelUp();
+					}
+				} else if (input.isEnter()) {
+					if (!statusBar.getPopupAttack().isVisible()) {
+						statusBar.attackButtonClicked();
+					} else if (!statusBar.getPopupAttack().getPopupTroop().isVisible()) {
+						statusBar.getPopupAttack().buttonAddOrderClicked();
+					} else {
+						statusBar.getPopupAttack().getPopupTroop().confirmButtonClicked();
+						statusBar.getPopupAttack().buttonExitPopup();
+					}
 				} else if (input.isPause()) {
-					if (!hasPressPause) {
-						hasPressPause = true;
+					if (!statusBar.getPopupAttack().isVisible()) {
 						isPaused = !isPaused;
 						textPause.setVisible(isPaused);
 					}
-				} else {
-					hasPressPause = false;
+				} else if (input.isAddTroop1()) {
+					if (!statusBar.getPopupAttack().isVisible()) {
+						statusBar.addSpearmanButtonClicked();
+					} else if (statusBar.getPopupAttack().getPopupTroop().isVisible()){
+						statusBar.getPopupAttack().getPopupTroop().buttonAddSpearClicked();
+					}
+				} else if (input.isAddTroop2()) {
+					if (!statusBar.getPopupAttack().isVisible()) {
+						statusBar.addKnightButtonClicked();
+					} else if (statusBar.getPopupAttack().getPopupTroop().isVisible()){
+						statusBar.getPopupAttack().getPopupTroop().buttonAddKnightClicked();
+					}
+				} else if (input.isAddTroop3()) {
+					if (!statusBar.getPopupAttack().isVisible()) {
+						statusBar.addCatapultButtonClicked();
+					} else if (statusBar.getPopupAttack().getPopupTroop().isVisible()){
+						statusBar.getPopupAttack().getPopupTroop().buttonAddCatapultClicked();
+					}
 				}
-
 			}
-
 		};
 		gameLoop.start();
+	}
+	
+	
+	/**
+	 * Display the ending message and stop the game.
+	 * @param win true if the player has win, otherwise false.
+	 */
+	private void gameOver(boolean win) {
+		if (win) {
+			textEnd.setText("Win");
+		} else {
+			textEnd.setText("Lose");
+		}
+		
+		textEnd.setVisible(true);
+		gameLoop.stop();
+	}
+	
+	
+	/**
+	 * Save the current state of the game in the file "last_save.txt"
+	 */
+	private void save() {
+		// create a new file with an ObjectOutputStream
+		FileOutputStream out;
+		ObjectOutputStream oout;
+		try {
+			
+			out = new FileOutputStream("last_save.txt");
+			try {
+				oout = new ObjectOutputStream(out);
+				
+		        // write something in the file
+				oout.writeObject(selectedCastle);
+		        oout.writeObject(castles);
+		        oout.writeObject(dukes);
+		        
+		        // close the stream
+		        oout.close();
+				
+			} catch (IOException e) {
+				System.out.print("IOException");
+				e.printStackTrace();
+				return;
+			}
+			
+		} catch (FileNotFoundException e) {
+			System.out.print("FileNotFoundException");
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	/**
+	 * Load the last saved game file (a file "last_save.txt").
+	 */
+	@SuppressWarnings("unchecked")
+	private void load() {
+		// create an ObjectInputStream for the file we created before
+        ObjectInputStream ois;
+		try {
+			
+			ois = new ObjectInputStream(new FileInputStream("last_save.txt"));
+			try {
+				
+				Main.pane.getChildren().clear();
+				
+				selectedCastle = (Castle) ois.readObject();
+				castles = (List<Castle>) ois.readObject();
+				dukes = (List<Duke>) ois.readObject();
+		        // close the stream
+		        ois.close();
+		        
+		        for (Castle castle:castles) {
+		        	castle.drawSelf();
+		        	castle.drawAllOrders();
+		        }
+		        
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+				ois.close();
+				return;
+			} catch (IOException e) {
+				e.printStackTrace();
+				ois.close();
+				return;
+			}
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
 	}
 
 	/**
@@ -474,6 +644,7 @@ public class Main extends Application {
 	
 	/**
 	 * Returns the list of all castles owned by a duke given in parameter.
+	 * 
 	 * @param duke the duke that own the castle
 	 * @return the list of all castles owned by the duke
 	 */
@@ -525,93 +696,11 @@ public class Main extends Application {
 	}
 	
 	/**
+	 * Returns a random boolean.
 	 * @return a random boolean
 	 */
 	public static boolean getRandomBoolean() {
 		return Math.random() >= 0.5;
-	}
-	
-	
-	public void gameOver(boolean win) {
-		if (win) {
-			textEnd.setText("Win");
-		} else {
-			textEnd.setText("Lose");
-		}
-		
-		textEnd.setVisible(true);
-		gameLoop.stop();
-	}
-	
-	public void save() {
-		// create a new file with an ObjectOutputStream
-		FileOutputStream out;
-		ObjectOutputStream oout;
-		try {
-			
-			out = new FileOutputStream("last_save.txt");
-			try {
-				oout = new ObjectOutputStream(out);
-				
-		        // write something in the file
-				oout.writeObject(selectedCastle);
-		        oout.writeObject(castles);
-		        oout.writeObject(dukes);
-		        
-		        // close the stream
-		        oout.close();
-				
-			} catch (IOException e) {
-				System.out.print("IOException");
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		} catch (FileNotFoundException e) {
-			System.out.print("FileNotFoundException");
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void load() {
-		// create an ObjectInputStream for the file we created before
-        ObjectInputStream ois;
-		try {
-			
-			ois = new ObjectInputStream(new FileInputStream("last_save.txt"));
-			try {
-				
-				this.playfieldLayer.getChildren().clear();
-				
-				selectedCastle = (Castle) ois.readObject();
-				castles = (List<Castle>) ois.readObject();
-				dukes = (List<Duke>) ois.readObject();
-		        // close the stream
-		        ois.close();
-		        
-		        for (Castle castle:castles) {
-		        	castle.setLayer(playfieldLayer);
-		        	castle.drawSelf();
-		        	castle.drawAllOrders();
-		        }
-		        
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 	
 	

@@ -2,7 +2,6 @@ package popup;
 
 import java.util.ArrayList;
 import java.util.List;
-import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
@@ -39,24 +38,22 @@ public class PopupTroop extends Popup {
 	
 	private Castle targetSelectedCastle;
 	
-	public PopupTroop(Group root) {
-		super(root);
+	public PopupTroop() {
 		hide();		
 		
-		layer.getChildren().add(pane);
+		Main.root.getChildren().add(pane);
 		pane.toFront();
 		
 		/* Appearance Size and position of Popup */
 		pane.getStyleClass().add("popup");
 		pane.setPrefSize(Settings.POPUP_WIDTH, Settings.POPUP_HEIGHT);
-		pane.setTranslateX((Settings.SCENE_WIDTH - Settings.POPUP_WIDTH) / 2);
-		pane.setTranslateY(((Settings.SCENE_HEIGHT - Settings.STATUS_BAR_HEIGHT) - Settings.POPUP_HEIGHT) / 2);
+		pane.setTranslateX((Settings.WINDOW_WIDTH - Settings.POPUP_WIDTH) / 2);
+		pane.setTranslateY(((Settings.WINDOW_HEIGHT - Settings.STATUS_BAR_HEIGHT) - Settings.POPUP_HEIGHT) / 2);
 		
 		Button buttonExitPopup = new Button(Main.language.getProperty("closeButton"));
-		buttonExitPopup.setOnAction(value ->  {
-			hide();
-        });
+		buttonExitPopup.setOnAction(value ->  {buttonExitPopup();});
 		pane.add(buttonExitPopup, 3, 0);
+		
 		pane.getRowConstraints().add(new RowConstraints(60));
 		pane.getRowConstraints().add(new RowConstraints(40));
 		pane.getRowConstraints().add(new RowConstraints(40));
@@ -74,32 +71,16 @@ public class PopupTroop extends Popup {
 		Text textTotal = new Text(Main.language.getProperty("total"));
 		
 		Button buttonAddSpear = new Button("→");
-		buttonAddSpear.setOnAction(value ->  {
-			if (SpearUsed < SpearAvailable) {
-				SpearUsed++;
-				refreshValues();
-			}
-		});
-		
 		Button buttonAddKnight = new Button("→");
-		buttonAddKnight.setOnAction(value ->  {
-			if (KnightUsed < KnightAvailable) {
-				KnightUsed++;
-				refreshValues();
-			}
-		});
+		Button buttonAddCatapult = new Button("→");
 		
-		Button buttonCatapult = new Button("→");
-		buttonCatapult.setOnAction(value ->  {
-			if (CatapultUsed < CatapultAvailable) {
-				CatapultUsed++;
-				refreshValues();
-			}
-		});
-		
+		buttonAddSpear.setOnAction(value ->  {buttonAddSpearClicked();});
+		buttonAddKnight.setOnAction(value ->  {buttonAddKnightClicked();});
+		buttonAddCatapult.setOnAction(value ->  {buttonAddCatapultClicked();});
+
 		buttonAddSpear.getStyleClass().add("addButton");
 		buttonAddKnight.getStyleClass().add("addButton");
-		buttonCatapult.getStyleClass().add("addButton");
+		buttonAddCatapult.getStyleClass().add("addButton");
 		
 		textSpear.getStyleClass().add("normal");
 		textKnight.getStyleClass().add("normal");
@@ -128,33 +109,57 @@ public class PopupTroop extends Popup {
 		
 		pane.add(buttonAddSpear, 2, 1);
 		pane.add(buttonAddKnight, 2, 2);
-		pane.add(buttonCatapult, 2, 3);
+		pane.add(buttonAddCatapult, 2, 3);
 		
 		pane.add(textSpearUsed, 3, 1);
 		pane.add(textKnightUsed, 3, 2);
 		pane.add(textCatapultUsed, 3, 3);
 		pane.add(textTotalUsed, 3, 4);
 		
-
-		
 		Button confirmButton = new Button(Main.language.getProperty("popupTroopConfirmButton"));
 		confirmButton.getStyleClass().add("addButton");
-		confirmButton.setOnAction(value ->  {
-			if (TotalUsed != 0) {
-				List<Troop> troops = new ArrayList<>();
-				for (int i = 0; i < SpearUsed; i++) {troops.add(Main.selectedCastle.getTroops(Spearman.class).get(i));}
-				for (int i = 0; i < KnightUsed; i++) {troops.add(Main.selectedCastle.getTroops(Knight.class).get(i));}
-				for (int i = 0; i < CatapultUsed; i++) {troops.add(Main.selectedCastle.getTroops(Catapult.class).get(i));}
-				
-				Main.selectedCastle.addOrder(this.targetSelectedCastle, troops);
-			}
-			hide();
-			this.needRefresh = true;
-        });
+		confirmButton.setOnAction(value ->  {confirmButtonClicked();});
 		
 		pane.add(confirmButton, 0, 5, 3, 1);
 	}
 	
+	public void buttonAddSpearClicked() {
+		if (SpearUsed < SpearAvailable) {
+			SpearUsed++;
+			refreshValues();
+		}
+	}
+	
+	public void buttonAddCatapultClicked() {
+		if (CatapultUsed < CatapultAvailable) {
+			CatapultUsed++;
+			refreshValues();
+		}
+	}
+	
+	public void buttonAddKnightClicked() {
+		if (KnightUsed < KnightAvailable) {
+			KnightUsed++;
+			refreshValues();
+		}
+	}
+	
+	public void confirmButtonClicked() {
+		if (TotalUsed != 0) {
+			List<Troop> troops = new ArrayList<>();
+			for (int i = 0; i < SpearUsed; i++) {troops.add(Main.selectedCastle.getTroops(Spearman.class).get(i));}
+			for (int i = 0; i < KnightUsed; i++) {troops.add(Main.selectedCastle.getTroops(Knight.class).get(i));}
+			for (int i = 0; i < CatapultUsed; i++) {troops.add(Main.selectedCastle.getTroops(Catapult.class).get(i));}
+			
+			Main.selectedCastle.addOrder(this.targetSelectedCastle, troops);
+		}
+		hide();
+		this.needRefresh = true;
+	}
+	
+	public void buttonExitPopup() {
+		hide();
+	}
 	
 	@Override
 	public void refresh() {

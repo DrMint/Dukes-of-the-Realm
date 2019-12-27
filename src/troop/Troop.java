@@ -58,7 +58,7 @@ public abstract class Troop implements java.io.Serializable{
 		/* If this next position is in a castle */
 		if (Main.getCastleFromPoint(location.add(nextMove)) != null) {
 			if (this.turnClockwise) {
-				nextMove.turnClockwise();					
+				nextMove.turnClockwise();		
 			} else {
 				nextMove.turnCounterClockwise();	
 			}

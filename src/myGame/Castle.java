@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import troop.Troop;
@@ -21,9 +20,8 @@ import troop.Troop;
 public class Castle implements java.io.Serializable{
 
 	private static final long serialVersionUID = -745739758419837966L;
-	private transient Pane layer;
 	private transient Rectangle shape;
-	private String nickname;
+	private String name;
 	private Duke owner;
 	private int money;
 	private int level;
@@ -36,14 +34,13 @@ public class Castle implements java.io.Serializable{
 	private int numProductionUnit = 1;
 	private int numDispatchMax = 3;
 	
-	public Castle(String nickname, Duke owner, int money, int level, List<Troop> troops, Point location, Pane layer, Direction doorDirection) {
-		this.nickname = nickname;
+	public Castle(String name, Duke owner, int money, int level, List<Troop> troops, Point location, Direction doorDirection) {
+		this.name = name;
 		this.owner = owner;
 		this.money = money;
 		this.level = level;
 		this.troops.addAll(troops); // Make a copy of the list
 		this.location = location;
-		this.layer = layer;
 		this.doorDirection = doorDirection;
 	}
 		
@@ -159,15 +156,34 @@ public class Castle implements java.io.Serializable{
 	}
 	
 	/**
+	 * Adds a list of troops to the castle's troops.
+	 * When a troop is added, its health is replenished.
+	 * @param troops	the troops that should be added
+	 */
+	public void addTroops(List<Troop> troops) {
+		for (Troop troop:troops) {
+			addTroop(troop);
+		}
+	}
+	
+	/**
 	 * Adds a troop to the production line.
 	 * Remove its cost from the castle treasury.
-	 * @param troop
+	 * @param c the troop class	
 	 */
-	public void addProduction(Troop troop) {
-		if (troop.getCostProduction() <= this.money) {
-			this.money -= troop.getCostProduction();
-			productions.add(new Production(troop));
+	public void addProduction(Class<?> c) {
+		Troop troop;
+		try {
+			troop = (Troop) c.newInstance();
+			if (troop.getCostProduction() <= this.money) {
+				this.money -= troop.getCostProduction();
+				productions.add(new Production(troop));
+			}
+		} catch (InstantiationException | IllegalAccessException e) {
+			e.printStackTrace();
+			return;
 		}
+
 	}
 	
 	/**
@@ -226,7 +242,8 @@ public class Castle implements java.io.Serializable{
 	 */
 	public void cancelProduction() {
 		if (this.productions.size() > 0) {
-			this.money += this.productions.get(0).getCost() * Settings.CANCEL_PRODUCTION_RETURN_RATIO;
+			Production production = productions.get(0);
+			this.money += production.getCost() * (1.0f -  ((float) production.getTimeElasped() / (float) production.getTotalTime()));
 			this.productions.remove(0);
 		}
 	}
@@ -236,7 +253,7 @@ public class Castle implements java.io.Serializable{
 	 */
 	public void cancelAllProduction() {
 		for(Production production:productions) {
-			this.money += production.getCost() * Settings.CANCEL_PRODUCTION_RETURN_RATIO;
+			this.money += production.getCost() * (1.0f -  ((float) production.getTimeElasped() / (float) production.getTotalTime()));
 		}
 		this.productions.clear();
 	}
@@ -289,7 +306,7 @@ public class Castle implements java.io.Serializable{
 		this.shape.setWidth(Main.gridSize * Settings.CASTLES_SIZE);
 		this.shape.setHeight(Main.gridSize * Settings.CASTLES_SIZE);
 		this.shape.setFill(this.owner.getColor());
-    	this.layer.getChildren().add(this.shape);
+    	Main.pane.getChildren().add(this.shape);
         
         int width;
         int height;
@@ -311,7 +328,7 @@ public class Castle implements java.io.Serializable{
 
         Rectangle door = new Rectangle(pos.x, pos.y, width, height);
         door.setFill(Color.WHITE);
-        this.layer.getChildren().add(door);
+        Main.pane.getChildren().add(door);
     }
 	
 
@@ -319,7 +336,7 @@ public class Castle implements java.io.Serializable{
 		Rectangle shape = new Rectangle(Main.gridSize * Settings.SOLDIER_SIZE, Main.gridSize * Settings.SOLDIER_SIZE);
 		shape.setFill(this.owner.getColor());
 		shape.setVisible(false);
-		this.layer.getChildren().add(shape);
+		Main.pane.getChildren().add(shape);
 		troop.setShape(shape);
 		
 	}
@@ -331,7 +348,7 @@ public class Castle implements java.io.Serializable{
 				shape.setFill(order.getSender().getColor());
 				shape.setVisible(troop.canMove());
 				troop.setShape(shape);
-				this.layer.getChildren().add(shape);
+				Main.pane.getChildren().add(shape);
 				troop.drawSelf();
 			}
 		}
@@ -339,7 +356,7 @@ public class Castle implements java.io.Serializable{
 	}
 	
 	public void undrawTroop(Troop troop) {
-		this.layer.getChildren().remove(troop.getShape());
+		Main.pane.getChildren().remove(troop.getShape());
 	}
 	
 	
@@ -358,7 +375,7 @@ public class Castle implements java.io.Serializable{
 
 	public int getLevel() {return level;}
 	public void setLevel(int level) {this.level = level;}	
-	public String getNickname() {return nickname;}
+	public String getNickname() {return name;}
 	public int getMoney() {	return money;}
 	public void setMoney(int money) {this.money = money;}
 	public List<Troop> getTroops() {return troops;}
@@ -399,15 +416,5 @@ public class Castle implements java.io.Serializable{
 	public Order getOrder(int index) {
 		if (index <= orders.size() - 1) return orders.get(index);
 		return null;		
-	}
-
-	public void setLayer(Pane layer) {
-		this.layer = layer;
-	}
-
-	public Pane getLayer() {
-		return layer;
-	}
-
-		
+	}		
 }

@@ -2,7 +2,7 @@ package myGame;
 
 /**
  * Give a level of abstraction when speaking about direction.
- * The developer can use functions such as isNorth() instead on relying
+ * Allows to use functions such as isNorth() instead on relying
  * on arbitrary values.
  * @author Thomas Barillot and Maël Bouquinet
  * @version 1.0
@@ -12,6 +12,7 @@ package myGame;
 public class Direction implements java.io.Serializable {
 
 	private static final long serialVersionUID = -4635993413361705298L;
+	
 	/**
 	 * 0 = North
 	 * 1 = East
@@ -20,8 +21,19 @@ public class Direction implements java.io.Serializable {
 	 */
 	private int direction = 0;
 	
+	/**
+	 * By default, the direction in north.
+	 */
 	public Direction() {}
 	
+	/**
+	 * Generate a direction from a point.
+	 * <p>
+	 * For example, Point(0, 1) will create a south direction.
+	 * It might be a better idea to create a direction and then set the direction
+	 * with a function such as setSouth().
+	 * @param p the point that will be used to generate the direction.
+	 */
 	public Direction(Point p) {
 		if (p.y > 0) {
 			this.direction = 0;
@@ -34,26 +46,43 @@ public class Direction implements java.io.Serializable {
 		}
 	}
 	
+	/**
+	 * @return a copy of the original direction.
+	 */
 	public Direction copy() {
 		Direction tmp = new Direction();
 		tmp.direction = this.direction;
 		return tmp;
 	}
 	
+	/**
+	 * @param d another direction
+	 * @return	true if the direction are the same, otherwise false.
+	 */
 	public boolean equals(Direction d) {
 		return d.direction == this.direction;
 	}
 	
+	/**
+	 * Turns the direction clockwise.
+	 */
 	public void turnClockwise() {
 		this.direction += 1;
 		if (this.direction > 3) this.direction -= 4;
 	}
 	
+	/**
+	 * Turns the direction counter-clockwise.
+	 */
 	public void turnCounterClockwise() {
 		this.direction -= 1;
 		if (this.direction < 0) this.direction += 4;
 	}
 	
+
+	/**
+	 * @return a normalized point (distance 1 from the origin) and with the appropriate direction. 
+	 */
 	public Point toPoint() {
 		switch (direction) {
 			case 0: return new Point(0,-1);
@@ -64,6 +93,9 @@ public class Direction implements java.io.Serializable {
 		}
 	}
 	
+	/**
+	 * Randomize the direction.
+	 */
 	public void randomize() {
 		switch(Main.getRandomIntegerBetweenRange(0, 4)) {
 			case 0: this.setNorth(); return;

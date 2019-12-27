@@ -1,11 +1,16 @@
 package myGame;
 
-import static javafx.scene.input.KeyCode.DOWN;
-import static javafx.scene.input.KeyCode.ESCAPE;
-import static javafx.scene.input.KeyCode.LEFT;
-import static javafx.scene.input.KeyCode.RIGHT;
 import static javafx.scene.input.KeyCode.SPACE;
-import static javafx.scene.input.KeyCode.UP;
+import static javafx.scene.input.KeyCode.ESCAPE;
+import static javafx.scene.input.KeyCode.CONTROL;
+import static javafx.scene.input.KeyCode.S;
+import static javafx.scene.input.KeyCode.L;
+import static javafx.scene.input.KeyCode.NUMPAD0;
+import static javafx.scene.input.KeyCode.NUMPAD1;
+import static javafx.scene.input.KeyCode.NUMPAD2;
+import static javafx.scene.input.KeyCode.NUMPAD3;
+import static javafx.scene.input.KeyCode.ENTER;
+import static javafx.scene.input.KeyCode.DECIMAL;
 
 import java.util.BitSet;
 
@@ -21,9 +26,7 @@ public class Input {
 	 * released.
 	 */
 	private BitSet keyboardBitSet = new BitSet();
-
 	private Scene scene = null;
-
 	public Input(Scene scene) {
 		this.scene = scene;
 	}
@@ -62,22 +65,22 @@ public class Input {
 	};
 
 	private boolean is(KeyCode key) {
-		return keyboardBitSet.get(key.ordinal());
+		boolean result = keyboardBitSet.get(key.ordinal());
+		keyboardBitSet.set(key.ordinal(), false);
+		return result;	
 	}
-
-	// -------------------------------------------------
-	// Evaluate bitset of pressed keys and return the player input.
-	// If direction and its opposite direction are pressed simultaneously, then the
-	// direction isn't handled.
-	// -------------------------------------------------
 
 	
 	/* GETTERS AND SETTERS */
 	
-	public boolean isMoveUp() {return is(UP) && !is(DOWN);}
-	public boolean isMoveDown() {return is(DOWN) && !is(UP);}
-	public boolean isMoveLeft() {return is(LEFT) && !is(RIGHT);}
-	public boolean isMoveRight() {return is(RIGHT) && !is(LEFT);}
 	public boolean isPause() {return is(SPACE);}
 	public boolean isExit() {return is(ESCAPE);}
+	public boolean isClose() {return is(DECIMAL);}
+	public boolean isSave() {return is(CONTROL) && is(S);}
+	public boolean isLoad() {return is(CONTROL) && is(L);}
+	public boolean isLevelUp() {return is(NUMPAD0);}
+	public boolean isAddTroop1() {return is(NUMPAD1);}
+	public boolean isAddTroop2() {return is(NUMPAD2);}
+	public boolean isAddTroop3() {return is(NUMPAD3);}
+	public boolean isEnter() {return is(ENTER);}
 }

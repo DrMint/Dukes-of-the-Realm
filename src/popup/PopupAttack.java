@@ -1,6 +1,5 @@
 package popup;
 
-import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
@@ -26,8 +25,7 @@ public class PopupAttack extends Popup {
 	
 	public PopupTroop popupTroop;
 	
-	public PopupAttack(Group root) {
-		super(root);
+	public PopupAttack() {
 		hide();
 		
 		for(int i = 0; i < textOstsCastleName.length; i++) {textOstsCastleName[i] = new Text(); textOstsCastleName[i].getStyleClass().add("normal");}
@@ -35,19 +33,18 @@ public class PopupAttack extends Popup {
 		for(int i = 0; i < textOstsKnight.length; i++) {textOstsKnight[i] = new Text(); textOstsKnight[i].getStyleClass().add("subtitle");}
 		for(int i = 0; i < textOstsCatapult.length; i++) {textOstsCatapult[i] = new Text(); textOstsCatapult[i].getStyleClass().add("subtitle");}
 		
-		layer.getChildren().add(pane);
+		Main.root.getChildren().add(pane);
 		
 		/* Appearance Size and position of Popup */
 		pane.getStyleClass().add("popup");
 		pane.setPrefSize(Settings.POPUP_WIDTH, Settings.POPUP_HEIGHT);
-		pane.setTranslateX((Settings.SCENE_WIDTH - Settings.POPUP_WIDTH) / 2);
-		pane.setTranslateY(((Settings.SCENE_HEIGHT - Settings.STATUS_BAR_HEIGHT) - Settings.POPUP_HEIGHT) / 2);
+		pane.setTranslateX((Settings.WINDOW_WIDTH - Settings.POPUP_WIDTH) / 2);
+		pane.setTranslateY(((Settings.WINDOW_HEIGHT - Settings.STATUS_BAR_HEIGHT) - Settings.POPUP_HEIGHT) / 2);
 		
 		Button buttonExitPopup = new Button(Main.language.getProperty("closeButton"));
-		buttonExitPopup.setOnAction(value ->  {
-			hide();
-        });
+		buttonExitPopup.setOnAction(value ->  {buttonExitPopup();});
 		pane.add(buttonExitPopup, 3, 0);
+		
 		pane.getRowConstraints().add(new RowConstraints(40));
 		pane.getColumnConstraints().add(new ColumnConstraints(60));
 		pane.getColumnConstraints().add(new ColumnConstraints(60));
@@ -67,14 +64,11 @@ public class PopupAttack extends Popup {
 		Button buttonAddOrder = new Button(Main.language.getProperty("popupAttackSendButton"));
 		buttonAddOrder.getStyleClass().add("addButton");
 		pane.add(buttonAddOrder, 0, Settings.NUM_OSTS_SHOWN  * 2 + 1, 3, 1);
-		buttonAddOrder.setOnAction(value ->  {
-			waitingToSelectCastle = true;
-			pane.setVisible(false);
-        });		
+		buttonAddOrder.setOnAction(value ->  {buttonAddOrderClicked();});		
 
-		this.popupTroop = new PopupTroop(root);
+		this.popupTroop = new PopupTroop();
 		
-		layer.setOnMousePressed(e -> {	
+		Main.root.setOnMousePressed(e -> {	
 			if (waitingToSelectCastle) {
 				Point p = new Point((int) e.getX(), (int) e.getY());
 				p = Main.pixelToGridCoordinates(p);
@@ -112,6 +106,15 @@ public class PopupAttack extends Popup {
 			}
 		}
 		
+	}
+	
+	public void buttonExitPopup() {
+		hide();
+	}
+	
+	public void buttonAddOrderClicked() {
+		waitingToSelectCastle = true;
+		pane.setVisible(false);
 	}
 
 	public PopupTroop getPopupTroop() {return popupTroop;}
