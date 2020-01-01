@@ -2,6 +2,13 @@ package popup;
 
 import javafx.scene.layout.GridPane;
 
+/**
+ * A popup is a new window displayed above the game.
+ * @author Thomas Barillot and Maël Bouquinet
+ * @version 1.0
+ * @since   2019-12-23
+ *
+ */
 public abstract class Popup {
 
 	GridPane pane = new GridPane();

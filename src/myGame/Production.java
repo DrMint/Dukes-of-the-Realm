@@ -2,6 +2,14 @@ package myGame;
 
 import troop.Troop;
 
+/**
+ * A production is an enhancement for a castle: a level up for the castle or a new troop.
+ * A production takes time and has a cost.
+ * @author Thomas Barillot and Maël Bouquinet
+ * @version 1.0
+ * @since   2019-12-23
+ *
+ */
 public class Production implements java.io.Serializable {
 
 	private static final long serialVersionUID = 599383154148207372L;

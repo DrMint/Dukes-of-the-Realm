@@ -7,19 +7,72 @@ import myGame.Main;
 import myGame.Point;
 import myGame.Settings;
 
+
+/**
+ * A troop is a soldier with various characteristics.
+ * @author Thomas Barillot and Maël Bouquinet
+ * @version 1.0
+ * @since   2019-12-23
+ *
+ */
 public abstract class Troop implements java.io.Serializable{
 
 	private static final long serialVersionUID = -4402798612674917004L;
-	private int costProduction;
-	private int timeProduction;
-	private int speed;
+	
+	/**
+	 * Cost to produce (in gold)
+	 */
+	private final int costProduction;
+	
+	/**
+	 * Number of turns to produce
+	 */
+	private final int timeProduction;
+	
+	/**
+	 * Number of grid cell passed through in one turn.
+	 */
+	private final int speed;
+	
+	/**
+	 * Current health points
+	 */
 	private int health;
-	private int maxHealth;
-	private int damage;
+	
+	/**
+	 * Maximum health points
+	 */
+	private final int maxHealth;
+	
+	/**
+	 * Damage points
+	 */
+	private final int damage;
+	
+	/**
+	 * Its position as grid coordinates
+	 */
 	private Point location;
-	private transient Rectangle shape = new Rectangle();
+	
+	/**
+	 * Its visual representation on the game board.
+	 */
+	private transient Rectangle shape;
+	
+	/**
+	 * Can this troop move?
+	 * Troops canno't move when they are created and when they arrive at their order's target.
+	 */
 	private boolean canMove = true;
+	
+	/**
+	 * Has this troop arrived to its order's target?
+	 */
 	private boolean hasArrived = false;
+	
+	/**
+	 * Troops uses a algorithm to avoid castles. This boolean will change when come into contact with a castle to avoid.
+	 */
 	private boolean turnClockwise = true;
 	
 	public Troop(int costProduction, int timeProduction, int speed, int health, int damage) {
@@ -74,11 +127,21 @@ public abstract class Troop implements java.io.Serializable{
 		drawSelf();
 	}
 	
+	/**
+	 * Move the shape representing the troop in accord with its grid coordinates.
+	 */
 	public void drawSelf() {
 		this.shape.setX(Main.gridStart.x + this.location.x * Main.gridSize);
 		this.shape.setY(Main.gridStart.y + this.location.y * Main.gridSize);
 	}
 	
+	/**
+	 * Returns the next cell the troop should go.
+	 * I created this function because I needed to know what the troop would do at another location than itself.
+	 * @param location the troop current position
+	 * @param target the troop objective
+	 * @return the next cell the troop should go.
+	 */
 	public Direction calculateDirectionForNextMove(Point location, Point target) {
 		
 		Direction result = new Direction();
@@ -104,6 +167,11 @@ public abstract class Troop implements java.io.Serializable{
 		return null;
 	}
 	
+	/**
+	 * Returns the next cell the troop should go.
+	 * @param target the troop objective
+	 * @return the next cell the troop should go.
+	 */
 	public Direction calculateDirectionForNextMove(Point target) {
 		return calculateDirectionForNextMove(this.location, target);
 	}

@@ -5,6 +5,13 @@ import java.util.Iterator;
 import java.util.List;
 import troop.Troop;
 
+/**
+ * An order represents a group of troops, sent by a duke, walking towards a target castle.
+ * @author Thomas Barillot and Maël Bouquinet
+ * @version 1.0
+ * @since   2019-12-23
+ *
+ */
 public class Order implements java.io.Serializable {
 
 	private static final long serialVersionUID = 6955717685163840542L;

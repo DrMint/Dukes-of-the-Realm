@@ -11,35 +11,42 @@ import troop.Catapult;
 import troop.Knight;
 import troop.Spearman;
 
+/**
+ * The status bar is where all the information on screen are shown.
+ * @author Thomas Barillot and Maël Bouquinet
+ * @version 1.0
+ * @since   2019-12-23
+ *
+ */
 public class StatusBar {
 
-	private Text textCastleName = new Text();
-	private Text textCastleOwner = new Text();
-	private Text textCastleLevel = new Text();
-	private Text textCastleMoney = new Text();
+	private final Text textCastleName = new Text();
+	private final Text textCastleOwner = new Text();
+	private final Text textCastleLevel = new Text();
+	private final Text textCastleMoney = new Text();
 	
-	private Text textCastleSpear = new Text();
-	private Text textCastleKnight = new Text();
-	private Text textCastleCatapult = new Text();
-	private Text textCastleTroopTotal = new Text();
+	private final Text textCastleSpear = new Text();
+	private final Text textCastleKnight = new Text();
+	private final Text textCastleCatapult = new Text();
+	private final Text textCastleTroopTotal = new Text();
 	
-	private Text textProductions[] = new Text[Settings.NUM_PRODUCTION_SHOWN];
+	private final Text textProductions[] = new Text[Settings.NUM_PRODUCTION_SHOWN];
 	
-	private GridPane statusBar = new GridPane();
-	private GridPane statsCastle = new GridPane();
-	private GridPane statsTroops = new GridPane();
-	private GridPane statsProduction = new GridPane();
-	private GridPane loadSavePanel = new GridPane();
+	private final GridPane statusBar = new GridPane();
+	private final GridPane statsCastle = new GridPane();
+	private final GridPane statsTroops = new GridPane();
+	private final GridPane statsProduction = new GridPane();
+	private final GridPane loadSavePanel = new GridPane();
     
-	private Button addSpearmanButton = new Button(Main.language.getProperty("addButton"));
-	private Button addKnightButton = new Button(Main.language.getProperty("addButton"));
-	private Button addCatapultButton = new Button(Main.language.getProperty("addButton"));
-	private Button addLevelButton = new Button(Main.language.getProperty("addButton"));
-	private Button attackButton = new Button(Main.language.getProperty("statusBarSendButton"));
-	private Button removeLastProductionButton = new Button("-");
-	private Button removeAllProductionButton = new Button(Main.language.getProperty("statusBarRemoveProductions"));
+	private final Button addSpearmanButton = new Button(Main.language.getProperty("addButton"));
+	private final Button addKnightButton = new Button(Main.language.getProperty("addButton"));
+	private final Button addCatapultButton = new Button(Main.language.getProperty("addButton"));
+	private final Button addLevelButton = new Button(Main.language.getProperty("addButton"));
+	private final Button attackButton = new Button(Main.language.getProperty("statusBarSendButton"));
+	private final Button removeLastProductionButton = new Button("-");
+	private final Button removeAllProductionButton = new Button(Main.language.getProperty("statusBarRemoveProductions"));
 	
-	private PopupAttack popupAttack;
+	private final PopupAttack popupAttack;
 	
 	private boolean askForSave = false;
 	private boolean askForLoad = false;
@@ -265,21 +272,33 @@ public class StatusBar {
 		
 	}
 	
+	/**
+	 * The function called when addSpearmanButton is clicked.
+	 */
 	public void addSpearmanButtonClicked() {
 		Main.selectedCastle.addProduction(Spearman.class);
     	refresh();
 	}
 	
+	/**
+	 * The function called when addKnightButton is clicked.
+	 */
 	public void addKnightButtonClicked() {
 		Main.selectedCastle.addProduction(Knight.class);
     	refresh();
 	}
 	
+	/**
+	 * The function called when addCatapultButton is clicked.
+	 */
 	public void addCatapultButtonClicked() {
 		Main.selectedCastle.addProduction(Catapult.class);
     	refresh();
 	}
 
+	/**
+	 * The function called when attackButton is clicked.
+	 */
 	public void attackButtonClicked() {
 		popupAttack.show();
     	popupAttack.refresh();

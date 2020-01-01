@@ -13,17 +13,24 @@ import troop.Catapult;
 import troop.Knight;
 import troop.Spearman;
 
+/**
+ * PopupAttack is an popup which displays all current attacks of the selected castle.
+ * @author Thomas Barillot and Maël Bouquinet
+ * @version 1.0
+ * @since   2019-12-23
+ *
+ */
 public class PopupAttack extends Popup {
 
-	private Text textOstsCastleName[] = new Text[Settings.NUM_OSTS_SHOWN];
-	private Text textOstsSpear[] = new Text[Settings.NUM_OSTS_SHOWN];
-	private Text textOstsKnight[] = new Text[Settings.NUM_OSTS_SHOWN];
-	private Text textOstsCatapult[] = new Text[Settings.NUM_OSTS_SHOWN];
+	private final Text textOstsCastleName[] = new Text[Settings.NUM_OSTS_SHOWN];
+	private final Text textOstsSpear[] = new Text[Settings.NUM_OSTS_SHOWN];
+	private final Text textOstsKnight[] = new Text[Settings.NUM_OSTS_SHOWN];
+	private final Text textOstsCatapult[] = new Text[Settings.NUM_OSTS_SHOWN];
 	
 	private boolean waitingToSelectCastle;
 	
 	
-	public PopupTroop popupTroop;
+	public final PopupTroop popupTroop;
 	
 	public PopupAttack() {
 		hide();
@@ -85,6 +92,9 @@ public class PopupAttack extends Popup {
 		});
 	}
 	
+	/**
+	 * Refreshes all the values shown on screen.
+	 */
 	@Override
 	public void refresh() {
 		this.needRefresh = false;
@@ -108,10 +118,16 @@ public class PopupAttack extends Popup {
 		
 	}
 	
+	/**
+	 * The function called when buttonExitPopup is clicked.
+	 */
 	public void buttonExitPopup() {
 		hide();
 	}
 	
+	/**
+	 * The function called when buttonAddOrder is clicked.
+	 */
 	public void buttonAddOrderClicked() {
 		waitingToSelectCastle = true;
 		pane.setVisible(false);

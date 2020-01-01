@@ -14,17 +14,24 @@ import troop.Knight;
 import troop.Spearman;
 import troop.Troop;
 
+/**
+ * PopupTroop is an popup which allows the player to create a new order.
+ * @author Thomas Barillot and Maël Bouquinet
+ * @version 1.0
+ * @since   2019-12-23
+ *
+ */
 public class PopupTroop extends Popup {
 	
-	private Text textSpearAvailable = new Text();
-	private Text textKnightAvailable = new Text();
-	private Text textCatapultAvailable = new Text();
-	private Text textTotalAvailable = new Text();
+	private final Text textSpearAvailable = new Text();
+	private final Text textKnightAvailable = new Text();
+	private final Text textCatapultAvailable = new Text();
+	private final Text textTotalAvailable = new Text();
 	
-	private Text textSpearUsed = new Text();
-	private Text textKnightUsed = new Text();
-	private Text textCatapultUsed = new Text();
-	private Text textTotalUsed = new Text();
+	private final Text textSpearUsed = new Text();
+	private final Text textKnightUsed = new Text();
+	private final Text textCatapultUsed = new Text();
+	private final Text textTotalUsed = new Text();
 		
 	private int SpearAvailable = 0;
 	private int KnightAvailable = 0;

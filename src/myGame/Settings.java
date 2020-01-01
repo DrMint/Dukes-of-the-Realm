@@ -2,6 +2,13 @@ package myGame;
 
 import troop.*;
 
+/**
+ * Settings is where all the game parameters are store. An easy to tweak the game and have fun.
+ * @author Thomas Barillot and Maël Bouquinet
+ * @version 1.0
+ * @since   2019-12-23
+ *
+ */
 public class Settings {
 
 	/**
@@ -33,7 +40,7 @@ public class Settings {
 	/**
 	 * The duration of a turn (in milliseconds) 
 	 */
-	public static final int TURN_DURATION = 20;
+	public static final int TURN_DURATION = 200;
 	
 	/**
 	 * The number of {@link TURN_DURATION} subdivisions, used for animation.
