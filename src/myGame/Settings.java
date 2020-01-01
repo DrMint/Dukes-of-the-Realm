@@ -33,7 +33,7 @@ public class Settings {
 	/**
 	 * The duration of a turn (in milliseconds) 
 	 */
-	public static final int TURN_DURATION = 40;
+	public static final int TURN_DURATION = 20;
 	
 	/**
 	 * The number of {@link TURN_DURATION} subdivisions, used for animation.
@@ -188,7 +188,7 @@ public class Settings {
 	/**
 	 * Gives 100 troops of each type to the player.
 	 */
-	public static final boolean CHEAT_TROOPS = true;
+	public static final boolean CHEAT_TROOPS = false;
 	
 	/**
 	 * The player will send an attack made of the tree type of soldier, to each other castle.

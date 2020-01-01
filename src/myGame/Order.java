@@ -8,11 +8,22 @@ import troop.Troop;
 public class Order implements java.io.Serializable {
 
 	private static final long serialVersionUID = 6955717685163840542L;
-	private Castle target;
-	private List<Troop> troops;
-	private Duke sender;
 	
-
+	/**
+	 * Their target castle.
+	 */
+	private final Castle target;
+	
+	/**
+	 * A list of all troops this order comprised.
+	 */
+	private final List<Troop> troops;
+	
+	/**
+	 * The duke that originally send them 
+	 * (useful if the castle they originate has changed owner since they deployed).
+	 */
+	private final Duke sender;
 
 	public Order(Castle origin, Castle target, List<Troop> troops) {
 		this.sender = origin.getOwner();
@@ -65,14 +76,12 @@ public class Order implements java.io.Serializable {
 	}
 	
 	
-	
 	/* GETTERS AND SETTERS */
 	
 	
 	
 	//public void cancel() {this.target = this.origin;}
 	public Castle getTarget() {return target;}
-	public void setTarget(Castle target) {this.target = target;}
 	public Duke getSender() {return sender;}
 	public List<Troop> getTroops() {return troops;}
 	public void addTroop(Troop c) {troops.add(c);}
@@ -82,8 +91,5 @@ public class Order implements java.io.Serializable {
 		List<Troop> result = new ArrayList<>();
 		for (Troop troop: troops) if (troop.getClass() == c) result.add(troop);
 		return result;
-	}
-
-	public void setTroops(List<Troop> troops) {this.troops = troops;}
-	
+	}	
 }

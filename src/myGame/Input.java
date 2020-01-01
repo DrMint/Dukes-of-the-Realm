@@ -19,14 +19,22 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
+/**
+ * The class that handle user's keyboard inputs.
+ * 
+ * @author Thomas Barillot and Maël Bouquinet
+ * @version 1.0
+ * @since   2019-12-23
+ */
 public class Input {
 
 	/**
 	 * Bitset which registers if any {@link KeyCode} keeps being pressed or if it is
 	 * released.
 	 */
-	private BitSet keyboardBitSet = new BitSet();
-	private Scene scene = null;
+	private final BitSet keyboardBitSet = new BitSet();
+	private final Scene scene;
+
 	public Input(Scene scene) {
 		this.scene = scene;
 	}
@@ -66,10 +74,10 @@ public class Input {
 
 	private boolean is(KeyCode key) {
 		boolean result = keyboardBitSet.get(key.ordinal());
+		/* When a key a pressed and the program handle the key press, unpress the key */
 		keyboardBitSet.set(key.ordinal(), false);
-		return result;	
+		return result;
 	}
-
 	
 	/* GETTERS AND SETTERS */
 	

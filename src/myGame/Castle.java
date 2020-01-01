@@ -20,19 +20,71 @@ import troop.Troop;
 public class Castle implements java.io.Serializable{
 
 	private static final long serialVersionUID = -745739758419837966L;
+	
+	/**
+	 * Instance of the casle's colored square.
+	 */
 	private transient Rectangle shape;
-	private String name;
+	
+	/**
+	 * The city name.
+	 */
+	private final String name;
+	
+	/**
+	 * Its owner.
+	 */
 	private Duke owner;
+	
+	/**
+	 * Its available treasury.
+	 */
 	private int money;
+	
+	/**
+	 * Its level.
+	 */
 	private int level;
+	
+	/**
+	 * A list of all stored troops. It doesn't count troops about to get dispatch or troops parts of a order.
+	 */
 	private List<Troop> troops = new ArrayList<>();
+	
+	/**
+	 * As only {@link numDispatchMax} troops can exit the castle at every turn, they are stored in this list.
+	 */
 	private List<Troop> troopsToDispatch = new ArrayList<>();
-	private Point location;
+	
+	/**
+	 * Its grid coordinates.
+	 */
+	private final Point location;
+	
+	/**
+	 * A list of all its current orders.
+	 */
 	private List<Order> orders = new ArrayList<>();
+	
+	/**
+	 * A list of all its current productions.
+	 */
 	private List<Production> productions = new ArrayList<>();
-	private Direction doorDirection;
-	private int numProductionUnit = 1;
-	private int numDispatchMax = 3;
+	
+	/**
+	 * Its door's direction.
+	 */
+	private final Direction doorDirection;
+	
+	/**
+	 * The number of simultaneous productions.
+	 */
+	private final int numProductionUnit = 1;
+	
+	/**
+	 * The number of troops that can exit the castle each turn.
+	 */
+	private final int numDispatchMax = 3;
 	
 	public Castle(String name, Duke owner, int money, int level, List<Troop> troops, Point location, Direction doorDirection) {
 		this.name = name;
@@ -45,6 +97,7 @@ public class Castle implements java.io.Serializable{
 	}
 		
 	/**
+	 * Returns the cost to level up the castle.
 	 * @return the cost to level up the castle
 	 */
 	public int costToLevel() {
@@ -55,8 +108,8 @@ public class Castle implements java.io.Serializable{
 		return 1000 * realLevel;
 	}
 	
-	
 	/**
+	 * Returns the number of ticks to level up.
 	 * @return the number of ticks to level up
 	 */
 	public int timeToLevel() {
@@ -67,9 +120,8 @@ public class Castle implements java.io.Serializable{
 		return 100 + 50 * realLevel;
 	}
 	
-	
 	/**
-	 * 
+	 * Add a new "level up" production if the castle has enough money.
 	 */
 	public void levelUp() {
 		int cost = costToLevel();
@@ -222,14 +274,14 @@ public class Castle implements java.io.Serializable{
 			this.troopsToDispatch.add(troop);
 		}
 		
-		/* If the order already exists, just append those new troops to it 
+		/* If the order already exists, just append those new troops to it */
 		for (Order order:orders) {
 			if (order.getTarget() == target) {
 				order.addTroops(troops);
 				this.troops.removeAll(troops);
 				return;
 			}
-		}*/
+		}
 		
 		/* Or else, create a new order and remove all those troops from the castle */
 		this.orders.add(new Order(this, target, troops));
@@ -292,9 +344,6 @@ public class Castle implements java.io.Serializable{
 	}
 	
 	
-	
-	
-	
 	/**
 	 * Draw the castle and its door on the panel.
 	 */
@@ -329,32 +378,25 @@ public class Castle implements java.io.Serializable{
         Rectangle door = new Rectangle(pos.x, pos.y, width, height);
         door.setFill(Color.WHITE);
         Main.pane.getChildren().add(door);
-    }
+	}
 	
 
+	/**
+	 * Create the troop shape. The shape is set to not visible.
+	 * @param troop the troop to be drawn.
+	 */
 	public void drawTroop(Troop troop) {
 		Rectangle shape = new Rectangle(Main.gridSize * Settings.SOLDIER_SIZE, Main.gridSize * Settings.SOLDIER_SIZE);
 		shape.setFill(this.owner.getColor());
 		shape.setVisible(false);
 		Main.pane.getChildren().add(shape);
 		troop.setShape(shape);
-		
 	}
-	
-	public void drawAllOrders() {
-		for (Order order:orders) {
-			for (Troop troop:order.getTroops()) {
-				Rectangle shape = new Rectangle(Main.gridSize * Settings.SOLDIER_SIZE, Main.gridSize * Settings.SOLDIER_SIZE);
-				shape.setFill(order.getSender().getColor());
-				shape.setVisible(troop.canMove());
-				troop.setShape(shape);
-				Main.pane.getChildren().add(shape);
-				troop.drawSelf();
-			}
-		}
-		
-	}
-	
+
+	/**
+	 * Remove the troop shape from the game's pane.
+	 * @param troop the troop which shape will be removed.
+	 */
 	public void undrawTroop(Troop troop) {
 		Main.pane.getChildren().remove(troop.getShape());
 	}
@@ -363,8 +405,6 @@ public class Castle implements java.io.Serializable{
 	
 	/* GETTERS AND SETTERS */
 	
-
-	public Direction getDoorDirection() {return doorDirection;}
 	public Point getLocation() {return location;}
 	public Duke getOwner() {return owner;}
 	

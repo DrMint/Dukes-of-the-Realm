@@ -19,7 +19,7 @@ public class Npc implements java.io.Serializable{
 	/**
 	 * The NPC will be controlling this duke.
 	 */
-	private Duke identity;
+	private final Duke identity;
 	
 	/**
 	 * The number of turns before trying to create a new troop.

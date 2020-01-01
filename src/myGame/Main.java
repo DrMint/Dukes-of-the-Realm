@@ -46,46 +46,46 @@ public class Main extends Application {
 	/**
 	 * Top left point where the grid starts.
 	 */
-	static public Point gridStart = new Point();
+	public static final Point gridStart = new Point();
 	
 	/**
 	 * The size of one grid cell (in pixels).
 	 */
-	static public int gridSize;
+	public static int gridSize;
 	
 	/**
 	 * The list of all castles
 	 */
-	static public List<Castle> castles = new ArrayList<>();
+	public static List<Castle> castles = new ArrayList<>();
 	
 	/**
 	 * The currently selected castle.
 	 */
-	static public Castle selectedCastle;
+	public static Castle selectedCastle;
 	
 	/**
 	 * The currently used properties file.
 	 * This is a collection of strings used in the interface.
 	 */
-	static public Properties language = new Properties();
+	public static final Properties language = new Properties();
 	
 	/**
 	 * The Pane on which the game field is drawn.
 	 */
-	static public Pane pane = new Pane();
+	public static final Pane pane = new Pane();
 
 	/**
 	 * The entire game surface on which everything is drawn.
 	 */
-	static public Group root = new Group();
+	public static final Group root = new Group();
 	
 	private List<Duke> dukes = new ArrayList<>();
 	
-	private Text textPause = new Text();
-	private Text textEnd = new Text();
-	private Scene scene = new Scene(root, Settings.WINDOW_WIDTH, Settings.WINDOW_HEIGHT);
+	private final Text textPause = new Text();
+	private final Text textEnd = new Text();
+	private final Scene scene = new Scene(root, Settings.WINDOW_WIDTH, Settings.WINDOW_HEIGHT);
 
-	private Input input = new Input(scene);
+	private final Input input = new Input(scene);
 	private AnimationTimer gameLoop;
 
 	private StatusBar statusBar;
@@ -192,21 +192,23 @@ public class Main extends Application {
 		/* Creates a list of Dukes + a random number of Neutral dukes */
 		String selectedName;
 		Color selectedColor;
+		boolean isPlayer = true;
 		int nbNeutral = getRandomIntegerBetweenRange(Settings.MAX_NEUTRAL / 2, Settings.MAX_NEUTRAL + 1);
 		for (int i = 0; i < Settings.NUM_NPC + 1 + nbNeutral; i++) {
+			/* If the duke isn't neutral */
 			if (i < Settings.NUM_NPC + 1) {
+				/* We will consider that Duke 0 is the player */
+				isPlayer = i == 0;
 				selectedColor = colorList.get(i % (colorList.size() - 1));
 				selectedName = (String) getRandomElemInList(dukeNames);
 				dukeNames.remove(selectedName);
+			/* If the duke is neutral */
 			} else {
 				selectedColor = Color.GRAY;
 				selectedName = "";
 			}
-			dukes.add(new Duke(selectedName, selectedColor));
+			dukes.add(new Duke(selectedName, selectedColor, isPlayer));
 		}
-		
-		/* We will consider that Duke 0 is the player */
-		dukes.get(0).isPlayer(true);
 
 		/* Generate a list of all points of the grid */
 		List<Point> points = new ArrayList<>();
@@ -331,7 +333,7 @@ public class Main extends Application {
 		statusBar = new StatusBar();
 		statusBar.refresh();
 
-		gameLoop = new AnimationTimer() {
+		this.gameLoop = new AnimationTimer() {
 			
 			private int spearFrequency = Settings.NUM_ANIMATION_SUBDIVISION / new Spearman().getSpeed();
 			private int knightFrequency = Settings.NUM_ANIMATION_SUBDIVISION / new Knight().getSpeed();
@@ -388,6 +390,7 @@ public class Main extends Application {
 								if (!hasStillTroops) {
 									if (duke.isPlayer()) gameOver(false);
 									i.remove();
+									
 								}
 							} else {
 								duke.tick();
@@ -518,14 +521,16 @@ public class Main extends Application {
 	 * @param win true if the player has win, otherwise false.
 	 */
 	private void gameOver(boolean win) {
-		if (win) {
-			textEnd.setText("Win");
-		} else {
-			textEnd.setText("Lose");
+		if (!textEnd.isVisible()) {
+			if (win) {
+				textEnd.setText("Win");
+			} else {
+				textEnd.setText("Lose");
+			}
+			
+			textEnd.setVisible(true);
+			gameLoop.stop();
 		}
-		
-		textEnd.setVisible(true);
-		gameLoop.stop();
 	}
 	
 	
@@ -585,7 +590,13 @@ public class Main extends Application {
 		        
 		        for (Castle castle:castles) {
 		        	castle.drawSelf();
-		        	castle.drawAllOrders();
+	        		for (Order order:castle.getOrders()) {
+	        			for (Troop troop:order.getTroops()) {
+	        				castle.drawTroop(troop);
+	        				if (troop.canMove()) troop.drawSelf();
+	        				troop.getShape().setVisible(troop.canMove());
+	        			}
+		        	}
 		        }
 		        
 			} catch (ClassNotFoundException e) {

@@ -16,27 +16,27 @@ public class Duke implements java.io.Serializable {
 	/**
 	 * The name of the duke.
 	 */
-	private String name;
+	private final String name;
 	
 	/**
 	 * The duke color. It is a javafx.scene.paint.Color.toString()
 	 */
-	private String color;
+	private final String color;
 	
 	/**
 	 * Is the duke the player?
 	 */
-	private boolean isPlayer;
+	private final boolean isPlayer;
 	
 	/**
 	 * Is the duke a neutral duke?
 	 */
-	private boolean isNeutral;
+	private final boolean isNeutral;
 	
 	/**
 	 * If this duke is controlled by an NPC, here it is.
 	 */
-	private Npc npc;
+	private final Npc npc;
 
 	
 	public Duke(String name, Color color, boolean isPlayer) {
@@ -47,7 +47,11 @@ public class Duke implements java.io.Serializable {
 		
 		/* If this isn't the player, and it isn't a neutral
 		 * duke, then it is a NPC */
-		if (!isPlayer && !isNeutral) npc = new Npc(this);
+		if (!isPlayer && !isNeutral) {
+			this.npc = new Npc(this);
+		} else {
+			this.npc = null;
+		}
 	}
 	
 	public Duke(String name, Color color) {
@@ -67,5 +71,4 @@ public class Duke implements java.io.Serializable {
 	public String toString() {return name;}
 	public boolean isPlayer() {return isPlayer;}
 	public boolean isNeutral() {return isNeutral;}
-	public void isPlayer(boolean isPlayer) {this.isPlayer = isPlayer;}
 }
