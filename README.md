@@ -9,6 +9,15 @@ Each duke starts with a castle that produces money at set intervals. This treasu
 
 The game ends once all castles are overruled by a single duke, and no other moving army is still present.
 
+### The main interface
+![](https://www.r-entries.com/etuliens/img/Dukes/4.PNG)
+
+### On-going attacks
+![](https://www.r-entries.com/etuliens/img/Dukes/5.PNG)
+
+### Creation of a new attack
+![](https://www.r-entries.com/etuliens/img/Dukes/6.PNG)
+
 ## Requirements
 ### Compilation
 In order to compile this program, you will need the `JRE System Librairy`.
