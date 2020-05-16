@@ -12,7 +12,7 @@ The game ends once all castles are overruled by a single duke, and no other movi
 ### The main interface
 ![](https://www.r-entries.com/etuliens/img/Dukes/4.PNG)
 
-### Troops send for the currently selected castle
+### Troops sent by the currently selected castle
 ![](https://www.r-entries.com/etuliens/img/Dukes/7.PNG)
 
 ### Sending troops to another castle
