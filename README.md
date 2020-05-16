@@ -12,10 +12,10 @@ The game ends once all castles are overruled by a single duke, and no other movi
 ### The main interface
 ![](https://www.r-entries.com/etuliens/img/Dukes/4.PNG)
 
-### On-going attacks
+### Troops send for the currently selected castle
 ![](https://www.r-entries.com/etuliens/img/Dukes/5.PNG)
 
-### Creation of a new attack
+### Sending troops to another castle
 ![](https://www.r-entries.com/etuliens/img/Dukes/6.PNG)
 
 ## Requirements
