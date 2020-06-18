@@ -10,13 +10,13 @@ Each duke starts with a castle that produces money at set intervals. This treasu
 The game ends once all castles are overruled by a single duke, and no other moving army is still present.
 
 ### The main interface
-![](https://www.r-entries.com/etuliens/img/Dukes/4.PNG)
+![](https://r-entries.com/etuliens/img/Dukes/4.PNG)
 
 ### Troops sent by the currently selected castle
-![](https://www.r-entries.com/etuliens/img/Dukes/7.PNG)
+![](https://r-entries.com/etuliens/img/Dukes/7.PNG)
 
 ### Sending troops to another castle
-![](https://www.r-entries.com/etuliens/img/Dukes/6.PNG)
+![](https://r-entries.com/etuliens/img/Dukes/6.PNG)
 
 ## Requirements
 ### Compilation
