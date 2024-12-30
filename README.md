@@ -1,5 +1,3 @@
-[//]: # (The file is written in Markdown. You can read it in its formatted form at https://github.com/DrMint/Dukes-of-the-Realm)
-
 # Dukes of the Realm
 ### Description
 Dukes of the Realm is a single player top-down strategy game.
@@ -10,17 +8,17 @@ Each duke starts with a castle that produces money at set intervals. This treasu
 The game ends once all castles are overruled by a single duke, and no other moving army is still present.
 
 ### The main interface
-![](https://r-entries.com/etuliens/img/Dukes/4.PNG)
+![](docs/4.PNG)
 
 ### Troops sent by the currently selected castle
-![](https://r-entries.com/etuliens/img/Dukes/7.PNG)
+![](docs/7.PNG)
 
 ### Sending troops to another castle
-![](https://r-entries.com/etuliens/img/Dukes/6.PNG)
+![](docs/6.PNG)
 
 ## Requirements
 ### Compilation
-In order to compile this program, you will need the `JRE System Librairy`.
+In order to compile this program, you will need the `JRE System Library`.
 The Java Build Path must include `Dukes-of-the-Realm/resources` and `Dukes-of-the-Realm/src`.
 
 The resources are encoded in UTF-8. In order to use them currently, your IDE must recodes them in this format. In Eclipse for example, this can be done in Project -> Properties -> Resource -> Text file encoding -> Other -> UTF-8.
